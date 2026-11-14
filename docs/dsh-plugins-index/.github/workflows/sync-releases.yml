@@ -1,0 +1,60 @@
+# Keep index.json versions in sync with GitHub Releases (market auto-update).
+#
+# - schedule: daily
+# - workflow_dispatch: manual
+# - Public plugin repos: default GITHUB_TOKEN is enough
+# - Private plugin repos: set repo secret INDEX_SYNC_TOKEN (contents:read on those repos)
+#
+# Tag rules (see scripts/sync-releases.mjs):
+#   standalone → vX.Y.Z
+#   monorepo (repository.directory) → name@X.Y.Z or name-vX.Y.Z
+name: sync-releases
+
+on:
+  schedule:
+    # 06:17 UTC — off the hour to spread load
+    - cron: '17 6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-releases
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    name: Sync latest releases into index.json
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Sync releases
+        env:
+          # Prefer a PAT that can read private plugin repos; fall back to GITHUB_TOKEN.
+          GITHUB_TOKEN: ${{ secrets.INDEX_SYNC_TOKEN != '' && secrets.INDEX_SYNC_TOKEN || github.token }}
+        run: node scripts/sync-releases.mjs
+
+      - name: Commit if changed
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- index.json README.md; then
+            echo 'No changes'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.json README.md
+          git commit -m "chore(index): sync latest GitHub Releases"
+          # Rebase if main moved during the run; skip quietly on conflict (next cron retries).
+          if ! git pull --rebase origin main; then
+            echo 'rebase conflict — skipping push until next run'
+            git rebase --abort || true
+            exit 0
+          fi
+          git push origin HEAD:main

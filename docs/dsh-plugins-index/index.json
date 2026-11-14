@@ -1,0 +1,494 @@
+{
+  "format": 1,
+  "title": {
+    "en": "risaddex DSH plugins",
+    "pt-br": "Plugins DSH do risaddex"
+  },
+  "description": {
+    "en": "Personal DeepSeek Harness plugins: LangSmith tracing, pull-request auto-fix, Linear issues, notifications, and an English/Portuguese prompt toolbox.",
+    "pt-br": "Plugins pessoais do DeepSeek Harness: tracing no LangSmith, auto-fix de pull requests, issues do Linear, notificações e uma toolbox de prompts em inglês/português."
+  },
+  "metadata": {
+    "categories": {
+      "observability": {
+        "title": {
+          "en": "Observability",
+          "pt-br": "Observabilidade"
+        }
+      },
+      "github": {
+        "title": {
+          "en": "GitHub & CI",
+          "pt-br": "GitHub e CI"
+        }
+      },
+      "tools": {
+        "title": {
+          "en": "Tools",
+          "pt-br": "Ferramentas"
+        }
+      },
+      "ui": {
+        "title": {
+          "en": "Interface",
+          "pt-br": "Interface"
+        }
+      },
+      "model": {
+        "title": {
+          "en": "Models",
+          "pt-br": "Modelos"
+        }
+      },
+      "notifications": {
+        "title": {
+          "en": "Notifications",
+          "pt-br": "Notificações"
+        }
+      },
+      "memory": {
+        "title": {
+          "en": "Memory",
+          "pt-br": "Memória"
+        }
+      },
+      "permissions": {
+        "title": {
+          "en": "Permissions",
+          "pt-br": "Permissões"
+        }
+      }
+    }
+  },
+  "plugins": [
+    {
+      "name": "dsh-plugin-auto-review-allow",
+      "title": {
+        "en": "Auto review allowlist",
+        "pt-br": "Allowlist do auto review"
+      },
+      "description": {
+        "en": "Exempt named tools from the experimental Auto review gate, with a reason per entry, plus per-session grants granted from a three-option card and revocable from settings.",
+        "pt-br": "Isenta tools nomeadas do gate experimental Auto review, com razão obrigatória por entrada, mais grants por sessão concedidos num card de três opções e revogáveis nas configurações."
+      },
+      "author": "risaddex",
+      "homepage": "https://github.com/risaddex/dsh-plugins/tree/main/packages/dsh-plugin-auto-review-allow",
+      "repository": {
+        "url": "https://github.com/risaddex/dsh-plugins",
+        "directory": "packages/dsh-plugin-auto-review-allow"
+      },
+      "metadata": {
+        "category": "permissions",
+        "keywords": [
+          "dsh-plugin",
+          "deepseek-harness",
+          "auto-review",
+          "permissions",
+          "approval",
+          "allowlist"
+        ]
+      },
+      "versions": [
+        {
+          "version": "0.2.0",
+          "publishTimestamp": 1794600182,
+          "source": {
+            "type": "git",
+            "url": "https://github.com/risaddex/dsh-plugins",
+            "commit": "90fc9daa4d538c277267345d248da682d1393176",
+            "path": "packages/dsh-plugin-auto-review-allow"
+          },
+          "engines": {
+            "dsh": ">=0.2.1-rc.5"
+          }
+        }
+      ]
+    },
+    {
+      "name": "dsh-plugin-langsmith",
+      "title": {
+        "en": "LangSmith tracing",
+        "pt-br": "Tracing no LangSmith"
+      },
+      "description": {
+        "en": "Traces every DeepSeek Harness turn, step, model call and tool call into LangSmith — prompts, tool results, token usage, subagent trees and subscription model/account labels. Configured from Settings → Plugins.",
+        "pt-br": "Envia cada turno, passo, chamada de modelo e ferramenta do DeepSeek Harness para o LangSmith — prompts, resultados de ferramentas, tokens, árvore de subagentes e identificação de modelo/conta das assinaturas. Configurável em Settings → Plugins."
+      },
+      "author": "risaddex",
+      "homepage": "https://github.com/risaddex/dsh-plugins/tree/main/packages/dsh-plugin-langsmith",
+      "repository": {
+        "url": "https://github.com/risaddex/dsh-plugins",
+        "directory": "packages/dsh-plugin-langsmith"
+      },
+      "metadata": {
+        "category": "observability",
+        "keywords": [
+          "dsh-plugin",
+          "deepseek-harness",
+          "langsmith",
+          "langchain",
+          "tracing",
+          "observability"
+        ]
+      },
+      "versions": [
+        {
+          "version": "0.1.0",
+          "publishTimestamp": 1794331515,
+          "source": {
+            "type": "git",
+            "url": "https://github.com/risaddex/dsh-plugins",
+            "commit": "90fc9daa4d538c277267345d248da682d1393176",
+            "path": "packages/dsh-plugin-langsmith"
+          },
+          "engines": {
+            "dsh": ">=0.2.1-rc.5"
+          }
+        }
+      ]
+    },
+    {
+      "name": "dsh-plugin-linear",
+      "title": {
+        "en": "Linear issues",
+        "pt-br": "Issues do Linear"
+      },
+      "description": {
+        "en": "Adds a Linear entry to the left sidebar: the newest issues assigned to you and the issues waiting in review states, from every configured Linear workspace (multi-account). Also gives the agent linear_accounts / linear_issues / linear_issue with explicit alias:IDENTIFIER refs.",
+        "pt-br": "Adiciona uma entrada Linear no sidebar esquerdo: as últimas issues atribuídas a você e as issues em estados de revisão, de todos os workspaces Linear configurados (multi-conta). Também expõe ao agente as ferramentas linear_accounts / linear_issues / linear_issue com refs explícitas alias:IDENTIFIER."
+      },
+      "author": "risaddex",
+      "homepage": "https://github.com/risaddex/dsh-plugins/tree/main/packages/dsh-plugin-linear",
+      "repository": {
+        "url": "https://github.com/risaddex/dsh-plugins",
+        "directory": "packages/dsh-plugin-linear"
+      },
+      "metadata": {
+        "category": "tools",
+        "keywords": [
+          "dsh-plugin",
+          "deepseek-harness",
+          "linear",
+          "issues",
+          "review",
+          "multi-workspace",
+          "sidebar"
+        ]
+      },
+      "versions": [
+        {
+          "version": "0.1.0",
+          "publishTimestamp": 1794331515,
+          "source": {
+            "type": "git",
+            "url": "https://github.com/risaddex/dsh-plugins",
+            "commit": "90fc9daa4d538c277267345d248da682d1393176",
+            "path": "packages/dsh-plugin-linear"
+          },
+          "engines": {
+            "dsh": ">=0.2.1-rc.5"
+          }
+        }
+      ]
+    },
+    {
+      "name": "dsh-plugin-ombrello-toolset",
+      "title": {
+        "en": "Ombrello toolset",
+        "pt-br": "Toolset Ombrello"
+      },
+      "description": {
+        "en": "Connects the Ombrello toolset MCP server hosted on the Obot gateway and adds OAuth 2.0 sign-in with automatic token refresh. The gateway tools appear as mcp__ombrello_toolset__* and the bearer token is kept in the credentials store, never in configuration.",
+        "pt-br": "Conecta o servidor MCP do toolset Ombrello hospedado no gateway Obot e acrescenta login OAuth 2.0 com renovação automática do token. As ferramentas do gateway aparecem como mcp__ombrello_toolset__* e o token fica no cofre de credenciais, nunca na configuração."
+      },
+      "author": "risaddex",
+      "homepage": "https://github.com/risaddex/dsh-plugins/tree/main/packages/dsh-plugin-ombrello-toolset",
+      "repository": {
+        "url": "https://github.com/risaddex/dsh-plugins",
+        "directory": "packages/dsh-plugin-ombrello-toolset"
+      },
+      "metadata": {
+        "category": "tools",
+        "keywords": [
+          "dsh-plugin",
+          "deepseek-harness",
+          "mcp",
+          "obot",
+          "ombrello",
+          "oauth"
+        ]
+      },
+      "versions": [
+        {
+          "version": "0.1.0",
+          "publishTimestamp": 1794597808,
+          "source": {
+            "type": "git",
+            "url": "https://github.com/risaddex/dsh-plugins",
+            "commit": "90fc9daa4d538c277267345d248da682d1393176",
+            "path": "packages/dsh-plugin-ombrello-toolset"
+          },
+          "engines": {
+            "dsh": ">=0.2.1-rc.5"
+          }
+        }
+      ]
+    },
+    {
+      "name": "dsh-plugin-pencil",
+      "title": {
+        "en": "Pencil design canvas",
+        "pt-br": "Canvas Pencil"
+      },
+      "description": {
+        "en": "Connects the Pencil app (pen.dev) over stdio MCP so the agent can read, generate and validate .pen designs in the document open in the app. The tools appear as mcp__pencil__get_app_state, get_style, read_skill, execute, browser and save. Requires Pen.app running; tool calls stay on this machine.",
+        "pt-br": "Conecta o app Pencil (pen.dev) por MCP stdio para o agente ler, gerar e validar designs .pen do documento aberto no app. As tools aparecem como mcp__pencil__get_app_state, get_style, read_skill, execute, browser e save. Exige o Pen.app aberto; as chamadas ficam nesta máquina."
+      },
+      "author": "risaddex",
+      "homepage": "https://github.com/risaddex/dsh-plugins/tree/main/packages/dsh-plugin-pencil",
+      "repository": {
+        "url": "https://github.com/risaddex/dsh-plugins",
+        "directory": "packages/dsh-plugin-pencil"
+      },
+      "metadata": {
+        "category": "tools",
+        "keywords": [
+          "dsh-plugin",
+          "deepseek-harness",
+          "mcp",
+          "pencil",
+          "pen.dev",
+          "design"
+        ]
+      },
+      "versions": [
+        {
+          "version": "0.1.0",
+          "publishTimestamp": 1794597808,
+          "source": {
+            "type": "git",
+            "url": "https://github.com/risaddex/dsh-plugins",
+            "commit": "90fc9daa4d538c277267345d248da682d1393176",
+            "path": "packages/dsh-plugin-pencil"
+          },
+          "engines": {
+            "dsh": ">=0.2.1-rc.5"
+          }
+        }
+      ]
+    },
+    {
+      "name": "dsh-plugin-pr-autofix",
+      "title": {
+        "en": "PR Auto-fix",
+        "pt-br": "PR Auto-fix"
+      },
+      "description": {
+        "en": "Watches the session's pull request on GitHub (github.com or Enterprise) or a self-hosted Gitea instance (gt CLI on Gitea 28+, tea fallback) and wakes the agent with a <ci-monitor-event> on CI failures, merge conflicts and new review comments. Adds a PR Auto-fix tab to the right sidebar; complements dsh-git-manager.",
+        "pt-br": "Monitora o pull request da sessão no GitHub (github.com ou Enterprise) ou em uma instância Gitea (CLI gt no Gitea 28+, tea como fallback) e acorda o agente com um <ci-monitor-event> em falha de CI, conflito de merge e novos comentários de review. Adiciona a aba PR Auto-fix no sidebar direito; complementa o dsh-git-manager."
+      },
+      "author": "risaddex",
+      "homepage": "https://github.com/risaddex/dsh-plugins/tree/main/packages/dsh-plugin-pr-autofix",
+      "repository": {
+        "url": "https://github.com/risaddex/dsh-plugins",
+        "directory": "packages/dsh-plugin-pr-autofix"
+      },
+      "metadata": {
+        "category": "github",
+        "keywords": [
+          "dsh-plugin",
+          "deepseek-harness",
+          "github",
+          "pull-request",
+          "ci",
+          "autofix",
+          "gitea",
+          "tea",
+          "code-review",
+          "gitea-cli"
+        ]
+      },
+      "versions": [
+        {
+          "version": "0.4.0",
+          "publishTimestamp": 1794331515,
+          "source": {
+            "type": "git",
+            "url": "https://github.com/risaddex/dsh-plugins",
+            "commit": "90fc9daa4d538c277267345d248da682d1393176",
+            "path": "packages/dsh-plugin-pr-autofix"
+          },
+          "engines": {
+            "dsh": ">=0.2.1-rc.5"
+          }
+        }
+      ]
+    },
+    {
+      "name": "dsh-plugin-secure-env-ingress",
+      "title": {
+        "en": "Secure env ingress",
+        "pt-br": "Ingress seguro de segredos"
+      },
+      "description": {
+        "en": "One-use HTTPS forms that carry a secret from the human to the dsh-vault without ever entering chat, tool output or the model context. Adds secure_env_request / secure_env_await / secure_env_status / secure_env_cancel / secure_operation and writes through the vault's own tools, so its encryption and approval policy still apply.",
+        "pt-br": "Formulários HTTPS de uso único que levam um segredo do humano até o dsh-vault sem passar pelo chat, pela saída das ferramentas ou pelo contexto do modelo. Adiciona secure_env_request / secure_env_await / secure_env_status / secure_env_cancel / secure_operation e grava pelas próprias ferramentas do vault, preservando a criptografia e a política de aprovação."
+      },
+      "author": "risaddex",
+      "homepage": "https://github.com/risaddex/dsh-plugins/tree/main/packages/dsh-plugin-secure-env-ingress",
+      "repository": {
+        "url": "https://github.com/risaddex/dsh-plugins",
+        "directory": "packages/dsh-plugin-secure-env-ingress"
+      },
+      "metadata": {
+        "category": "tools",
+        "keywords": [
+          "dsh-plugin",
+          "deepseek-harness",
+          "vault",
+          "secrets",
+          "https",
+          "ingress",
+          "env",
+          "credentials",
+          "security"
+        ]
+      },
+      "versions": [
+        {
+          "version": "0.1.1",
+          "publishTimestamp": 1794331515,
+          "source": {
+            "type": "git",
+            "url": "https://github.com/risaddex/dsh-plugins",
+            "commit": "90fc9daa4d538c277267345d248da682d1393176",
+            "path": "packages/dsh-plugin-secure-env-ingress"
+          },
+          "engines": {
+            "dsh": ">=0.2.1-rc.5"
+          }
+        }
+      ]
+    },
+    {
+      "name": "dsh-notifier",
+      "title": {
+        "en": "Notifier & remote control",
+        "pt-br": "Notifier e controle remoto"
+      },
+      "description": {
+        "en": "Outbound notifications across 28 chat and push channels plus 6 inbound control channels, with a native Notify & Control UI and live outbound configuration.",
+        "pt-br": "Notificações em 28 canais de chat e push e 6 canais de controle de entrada, com UI Notify & Control nativa e configuração de saída ao vivo."
+      },
+      "author": "risaddex",
+      "homepage": "https://github.com/risaddex/dsh-notifier",
+      "repository": {
+        "url": "https://github.com/risaddex/dsh-notifier"
+      },
+      "metadata": {
+        "category": "notifications",
+        "keywords": [
+          "dsh-plugin",
+          "deepseek-harness",
+          "notifications",
+          "telegram",
+          "webhook",
+          "remote-control"
+        ]
+      },
+      "versions": [
+        {
+          "version": "0.13.1",
+          "publishTimestamp": 1793893574,
+          "source": {
+            "type": "git",
+            "url": "https://github.com/risaddex/dsh-notifier",
+            "commit": "18fa2bc9d7094449e9aeb5d2a0936c9fd7e3e9ef"
+          },
+          "engines": {
+            "dsh": "0.2.1-rc.5 || 0.2.2-rc.1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "dsh-plugin-ai-memory",
+      "title": {
+        "en": "AI Memory",
+        "pt-br": "AI Memory"
+      },
+      "description": {
+        "en": "Runs the ai-memory lifecycle hooks, wires the ai-memory MCP server (local or remote workstream) and adds a left-rail panel to configure and verify the connection.",
+        "pt-br": "Executa os hooks de ciclo de vida do ai-memory, conecta o servidor MCP do ai-memory (local ou workstream remoto) e adiciona um painel no rail esquerdo para configurar e verificar a conexão."
+      },
+      "author": "risaddex",
+      "homepage": "https://github.com/risaddex/dsh-plugin-ai-memory",
+      "repository": {
+        "url": "https://github.com/risaddex/dsh-plugin-ai-memory"
+      },
+      "metadata": {
+        "category": "memory",
+        "keywords": [
+          "dsh-plugin",
+          "deepseek-harness",
+          "ai-memory",
+          "memory",
+          "hooks",
+          "mcp"
+        ]
+      },
+      "versions": [
+        {
+          "version": "0.2.0",
+          "publishTimestamp": 1794079816,
+          "source": {
+            "type": "git",
+            "url": "https://github.com/risaddex/dsh-plugin-ai-memory",
+            "commit": "4d844979127101799b86457be14ef3a001f1851e"
+          }
+        }
+      ]
+    },
+    {
+      "name": "dsh-prompt",
+      "title": {
+        "en": "Prompt toolbox",
+        "pt-br": "Toolbox de prompts"
+      },
+      "description": {
+        "en": "Prompt toolbox for DeepSeek Harness with English default UI, Portuguese option, and 24 localized preset bodies — one click inserts the template into the composer.",
+        "pt-br": "Toolbox de prompts para o DeepSeek Harness com UI padrão em inglês, opção em português e 24 presets com corpo localizado — um clique injeta o template no compositor."
+      },
+      "author": "risaddex",
+      "homepage": "https://github.com/risaddex/dsh-prompt",
+      "repository": {
+        "url": "https://github.com/risaddex/dsh-prompt"
+      },
+      "metadata": {
+        "category": "ui",
+        "keywords": [
+          "dsh-plugin",
+          "deepseek-harness",
+          "prompt",
+          "templates",
+          "i18n",
+          "portuguese"
+        ]
+      },
+      "versions": [
+        {
+          "version": "0.5.1",
+          "publishTimestamp": 1794671034,
+          "source": {
+            "type": "git",
+            "url": "https://github.com/risaddex/dsh-prompt",
+            "commit": "1e27ee4a7b664f2289308b20140d1cd4b443d877"
+          },
+          "engines": {
+            "dsh": ">=0.2.0-rc.2"
+          }
+        }
+      ]
+    }
+  ]
+}
