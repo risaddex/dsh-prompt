@@ -4,6 +4,26 @@
 
 ## [Unreleased]
 
+## [0.5.1] - 2026-11-14
+
+### Added
+
+- **Preset prompt bodies in English and Portuguese**: all 24 builtins ship `bodyEn`/`bodyPt`; insert, preview, `/prompt`, smart-card, search, and copy-to-custom resolve via `resolveTemplateBody` for the active UI language (canonical Chinese `body` kept for storage identity).
+
+### Changed
+
+- GitHub Release is the install channel for this fork (`dsh-prompt` on npm remains upstream-owned). Catalog / market installs should use the release `.tgz`.
+
+## [0.5.0] - 2026-11-14
+
+### Added
+
+- **English default UI with Portuguese option and language toggle**: chrome dictionary is now `en`/`pt` (no Chinese UI chrome). Default language is English via plugin preference; Settings includes an EN|PT toggle persisted as `uiLang` (`POST /_dsh/dsh-prompt/lang/set`). Preset names/labels follow the active language; `templateHaystack` indexes `namePt` so Portuguese titles are searchable.
+
+### Changed
+
+- Locale resolution prefers the plugin language preference over host/`html[lang]` (still never writes `html[lang]`). Host `zh*` maps to English for this fork. Base-package widgets still speak zh|en only — PT maps to EN for `createBaseUI`.
+
 ## [0.4.41] - 2026-11-03
 
 ### Changed

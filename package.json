@@ -1,6 +1,6 @@
 {
   "name": "dsh-prompt",
-  "version": "0.4.41",
+  "version": "0.5.1",
   "description": "DSH prompt 工具箱：预制 + 自定义 prompt 模板，点击即插入当前对话输入框（v1 常规模式 + v1.1 智能模式悬浮卡） | Prompt toolbox for DeepSeek Harness: preset + custom prompt templates, one-click insert into the conversation.",
   "keywords": [
     "dsh",
@@ -174,7 +174,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/FeatherHunter/dsh-prompt.git"
+    "url": "git+https://github.com/risaddex/dsh-prompt.git"
   },
   "dependencies": {
     "dsh-log": "^0.3.4",
@@ -187,5 +187,6 @@
     "@deepseek-ai/dsh-storage-domain": {
       "optional": true
     }
-  }
+  },
+  "homepage": "https://github.com/risaddex/dsh-prompt#readme"
 }
