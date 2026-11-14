@@ -35,10 +35,12 @@ npm install -g @deepseek-ai/dsh
 dsh plugin --profile web add dsh-prompt       # self-hosted web service (dsh web)
 #     or
 dsh plugin --profile desktop add dsh-prompt   # DSH Desktop app
-# Pin a version for stability (current 0.4.41):
-dsh plugin --profile web add dsh-prompt@0.4.41 --registry https://registry.npmjs.org
+# This fork ships via GitHub Release (npm name dsh-prompt stays upstream-owned). Prefer the prebuilt tarball:
+dsh plugin --profile web add https://github.com/risaddex/dsh-prompt/releases/latest/download/dsh-prompt.tgz
 #     or
-dsh plugin --profile desktop add dsh-prompt@0.4.41 --registry https://registry.npmjs.org
+dsh plugin --profile desktop add https://github.com/risaddex/dsh-prompt/releases/latest/download/dsh-prompt.tgz
+# Pin a version (current 0.5.1):
+dsh plugin --profile web add https://github.com/risaddex/dsh-prompt/releases/download/v0.5.1/dsh-prompt-0.5.1.tgz
 ```
 
 <div align="center">
