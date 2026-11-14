@@ -118,7 +118,7 @@ type Phase = 'probing' | 'loading' | 'ready' | 'empty' | 'failed' | 'switching'
 function SessionCard(props: {
   h: any
   s: WorkspaceSession
-  lang: 'zh' | 'en'
+  lang: 'en' | 'pt'
   ungroupedName: string
   fallbackShort: string
   current: boolean

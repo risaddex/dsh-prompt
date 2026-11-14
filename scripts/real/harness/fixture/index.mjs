@@ -66,6 +66,7 @@ export const CLEAN_GLOBAL = Object.freeze({
   remoteDensity: 'a',
   hidePreset: true,
   hoverTrigger: true,
+  uiLang: 'en',
 });
 
 /** 故障注入：只用于证明「起始态与声明不符 → BLOCKED」，不参与正常路径。 */
@@ -73,7 +74,7 @@ export const FAULT_MODES = Object.freeze(['pollute', 'skip-seed', 'drop-store'])
 
 const RECIPE_KEYS = ['formatVersion', 'name', 'title', 'description', 'reset', 'seed', 'expect'];
 const SEED_KEYS = ['global', 'customs', 'usage', 'pinned'];
-const EXPECT_KEYS = ['unit', 'storePresent', 'customs', 'usage', 'pinned', 'lastUsed', 'remote', 'hidePreset', 'hoverTrigger'];
+const EXPECT_KEYS = ['unit', 'storePresent', 'customs', 'usage', 'pinned', 'lastUsed', 'remote', 'hidePreset', 'hoverTrigger', 'uiLang'];
 const GLOBAL_KEYS = Object.keys(CLEAN_GLOBAL);
 const CUSTOM_KEYS = ['id', 'name', 'nameEn', 'labels', 'color', 'outline', 'body', 'builtin', 'createdAt', 'tag', 'domain', 'stage', 'action'];
 const PROJECTED_CUSTOM_KEYS = ['id', 'name', 'builtin', 'labels'];
@@ -267,6 +268,8 @@ function validateSeedGlobal(global, at) {
       ensureOneOf(value, ORIENTATIONS, keyPath);
     } else if (key === 'remoteDensity') {
       ensureOneOf(value, DENSITIES, keyPath);
+    } else if (key === 'uiLang') {
+      ensureOneOf(value, ['en', 'pt'], keyPath);
     }
   }
 }
@@ -373,6 +376,7 @@ function validateExpect(expect) {
   }
   if (expect.hidePreset !== undefined) ensureBoolean(expect.hidePreset, 'expect.hidePreset');
   if (expect.hoverTrigger !== undefined) ensureBoolean(expect.hoverTrigger, 'expect.hoverTrigger');
+  if (expect.uiLang !== undefined) ensureOneOf(expect.uiLang, ['en', 'pt'], 'expect.uiLang');
 }
 
 /** 深层校验一份已解析参数的配方（信封 + seed + expect）。 */
@@ -549,6 +553,7 @@ export function baselineFromStoreDocument(doc, { present = true } = {}) {
       remote: normalizeRemotePrefs({}),
       hidePreset: true,
       hoverTrigger: true,
+      uiLang: 'en',
     };
   }
   const global = doc.global !== null && typeof doc.global === 'object' ? doc.global : {};
@@ -569,6 +574,7 @@ export function baselineFromStoreDocument(doc, { present = true } = {}) {
     }),
     hidePreset: typeof global.hidePreset === 'boolean' ? global.hidePreset : true,
     hoverTrigger: typeof global.hoverTrigger === 'boolean' ? global.hoverTrigger : true,
+    uiLang: global.uiLang === 'pt' ? 'pt' : 'en',
   };
 }
 
@@ -605,6 +611,7 @@ export function baselineFromSnapshot(snapshot, { storePresent = false, unit = nu
     },
     hidePreset: typeof snapshot.hidePreset === 'boolean' ? snapshot.hidePreset : true,
     hoverTrigger: typeof snapshot.hoverTrigger === 'boolean' ? snapshot.hoverTrigger : true,
+    uiLang: snapshot.uiLang === 'pt' ? 'pt' : 'en',
   };
 }
 

@@ -26,7 +26,7 @@ function fail(msg) { failures++; console.log('FAIL: ' + msg); }
 function ok(msg) { console.log(' ok: ' + msg); }
 
 buildFlat(DIR, [SRC('template-browser.ts')]);
-// 语言钉死成 zh：本脚本按「＋ 新增」的中文字形与中文界面断言（成因见 scripts/lib/pin-locale.cjs）。
+// 语言钉死成 en：本脚本按「+ Add」的英文字形与英文界面断言（成因见 scripts/lib/pin-locale.cjs）。
 require('./lib/pin-locale.cjs').pinLocaleZh();
 const React = require('react');
 const TR = require('react-test-renderer');
@@ -86,9 +86,12 @@ if (page) {
   if (toggle) {
     const btns = toggle.findAll((n) => n.type === 'button' && n.props && n.props.style && n.props.style.width === 'auto');
     const plusAdd = btns.filter((n) => {
-      try { return String((n.children || []).join('')).indexOf('＋') === 0; } catch (e) { return false; }
+      try {
+        const t = String((n.children || []).join(''));
+        return t.indexOf('+') === 0 || t.indexOf('＋') === 0;
+      } catch (e) { return false; }
     })[0];
-    if (!plusAdd) fail('头行内应找到「＋ 新增」按钮（width auto）');
+    if (!plusAdd) fail('头行内应找到「+ Add」按钮（width auto）');
     else {
       const st = plusAdd.props.style;
       if (st.height !== 'auto') fail('新增按钮高度应 height:auto（内容自适应，修前钉死 26），实际 ' + JSON.stringify(st.height));
@@ -115,9 +118,12 @@ if (page) {
     const scope = rows.length > 0 ? rows[0] : compact.root;
     const btns = scope.findAll((n) => n.type === 'button' && n.props && n.props.style && n.props.style.width === 'auto');
     const plusAdd = btns.filter((n) => {
-      try { return String((n.children || []).join('')).indexOf('＋') === 0; } catch (e) { return false; }
+      try {
+        const t = String((n.children || []).join(''));
+        return t.indexOf('+') === 0 || t.indexOf('＋') === 0;
+      } catch (e) { return false; }
     })[0];
-    if (!plusAdd) fail('悬浮底栏应找到「＋ 新增」按钮（width auto）');
+    if (!plusAdd) fail('悬浮底栏应找到「+ Add」按钮（width auto）');
     else if (plusAdd.props.style.height !== 'auto') fail('悬浮底栏新增按钮高度亦应 height:auto（同形同修），实际 ' + JSON.stringify(plusAdd.props.style.height));
     if (failures === 0) ok('悬浮底栏：同形按钮一并 height:auto');
   }

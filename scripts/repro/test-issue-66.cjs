@@ -79,15 +79,15 @@ console.log('=== T1: 窄屏钩子 + 文案 ===');
   const kids = node.props.children;
   const textNode = kids[kids.length - 1];
   ok(textNode.props['data-dsh-prompt-label'] === '1', 'span 带 data-dsh-prompt-label=1');
-  ok(textNode.props.children === tr('zh', STR.entryBtn), '文案 = ' + JSON.stringify(tr('zh', STR.entryBtn)));
+  ok(textNode.props.children === tr('en', STR.entryBtn), '文案 = ' + JSON.stringify(tr('en', STR.entryBtn)));
 }
 
 console.log('=== T2: 可访问名不丢（图标化后靠它） ===');
 {
   const t = render();
   const node = t.root.find((x) => x.props && x.props['data-dsh-prompt-entry']);
-  ok(node.props['aria-label'] === tr('zh', STR.entryBtn), 'aria-label = 可见文字，实际=' + JSON.stringify(node.props['aria-label']));
-  ok(node.props.title === tr('zh', STR.entryBtn), 'title 仍在（悬停原生提示）');
+  ok(node.props['aria-label'] === tr('en', STR.entryBtn), 'aria-label = 可见文字，实际=' + JSON.stringify(node.props['aria-label']));
+  ok(node.props.title === tr('en', STR.entryBtn), 'title 仍在（悬停原生提示）');
   ok(node.props['aria-label'] === node.props.title, 'aria-label 与 title 一致，不与可见标签打架');
 }
 

@@ -10,7 +10,9 @@
         "id": "fx-${runTag}-undo-single",
         "name": "夹具·标记单行（${runTag}）",
         "nameEn": "",
-        "labels": ["夹具"],
+        "labels": [
+          "夹具"
+        ],
         "body": "SMART{{cursor}}END",
         "builtin": false,
         "createdAt": 1700000000101
@@ -19,7 +21,9 @@
         "id": "fx-${runTag}-undo-multi",
         "name": "夹具·标记多行（${runTag}）",
         "nameEn": "",
-        "labels": ["夹具"],
+        "labels": [
+          "夹具"
+        ],
         "body": "第一行{{cursor}}第二行\n第三行",
         "builtin": false,
         "createdAt": 1700000000102
@@ -28,7 +32,9 @@
         "id": "fx-${runTag}-undo-plain",
         "name": "夹具·无标记（${runTag}）",
         "nameEn": "",
-        "labels": ["夹具"],
+        "labels": [
+          "夹具"
+        ],
         "body": "NOMARK",
         "builtin": false,
         "createdAt": 1700000000103
@@ -37,17 +43,47 @@
   },
   "expect": {
     "storePresent": true,
-    "unit": { "name": "dsh_prompt", "version": 0 },
+    "unit": {
+      "name": "dsh_prompt",
+      "version": 0
+    },
     "customs": [
-      { "id": "fx-${runTag}-undo-single", "name": "夹具·标记单行（${runTag}）", "builtin": false, "labels": ["夹具"] },
-      { "id": "fx-${runTag}-undo-multi", "name": "夹具·标记多行（${runTag}）", "builtin": false, "labels": ["夹具"] },
-      { "id": "fx-${runTag}-undo-plain", "name": "夹具·无标记（${runTag}）", "builtin": false, "labels": ["夹具"] }
+      {
+        "id": "fx-${runTag}-undo-single",
+        "name": "夹具·标记单行（${runTag}）",
+        "builtin": false,
+        "labels": [
+          "夹具"
+        ]
+      },
+      {
+        "id": "fx-${runTag}-undo-multi",
+        "name": "夹具·标记多行（${runTag}）",
+        "builtin": false,
+        "labels": [
+          "夹具"
+        ]
+      },
+      {
+        "id": "fx-${runTag}-undo-plain",
+        "name": "夹具·无标记（${runTag}）",
+        "builtin": false,
+        "labels": [
+          "夹具"
+        ]
+      }
     ],
     "usage": {},
     "pinned": [],
     "lastUsed": null,
-    "remote": { "enabled": false, "size": 5, "orientation": "auto", "density": "a" },
+    "remote": {
+      "enabled": false,
+      "size": 5,
+      "orientation": "auto",
+      "density": "a"
+    },
     "hidePreset": true,
-    "hoverTrigger": true
+    "hoverTrigger": true,
+    "uiLang": "en"
   }
 }

@@ -26,14 +26,14 @@ buildFlat(DIR, [
   REMOTEVIEW_TS,
   PANEL_TS,
 ]);
-// 语言钉死成 zh：本脚本按中文界面断言（成因见 scripts/lib/pin-locale.cjs）。
+// 语言钉死成 en（pinLocaleZh 现为 en 别名）：本脚本按英文界面断言（成因见 scripts/lib/pin-locale.cjs）。
 require('./lib/pin-locale.cjs').pinLocaleZh();
 const React = require('react');
 const TR = require('react-test-renderer');
 const { TemplateBrowser } = require(path.join(DIR, 'template-browser.cjs'));
 const { tr, STR } = require(path.join(DIR, 'strings.cjs'));
 const state = require(path.join(DIR, 'panel-visibility.cjs'));
-const zh = (k) => tr('zh', STR[k]);
+const en = (k) => tr('en', STR[k]);
 
 async function testCompactHover() {
   console.log('=== Test A: compact hover suppression ===');
@@ -55,15 +55,16 @@ async function testCompactHover() {
   TR.act(() => { created = TR.create(React.createElement(Host)); });
   const root = created.root;
   const PLUS = '\uFF0B';
-  const CANCEL = '\u53D6\u6D88';
+  const CANCEL = en('cancel');
   const byText = (txt) => root.findAll((x) => x.type === 'button' && Array.isArray(x.children) && x.children.some((c) => typeof c === 'string' && c.includes(txt)))[0];
+  const byHook = (name) => root.findAll((x) => x.type === 'button' && x.props && x.props['data-dsh-prompt-chrome'] === name)[0];
   const byPlaceholder = (ph) => root.findAll((x) => (x.type === 'input' || x.type === 'textarea') && x.props && x.props.placeholder === ph)[0];
-  const addBtn = byText(PLUS);
+  const addBtn = byHook('plusGlyph') || byText(PLUS) || byText('+');
   if (!addBtn) throw new Error('add button not found');
   // A1: 打开弹窗
   TR.act(() => { addBtn.props.onClick(); });
-  let name = byPlaceholder(zh('namePh'));
-  let body = byPlaceholder(zh('bodyPh'));
+  let name = byPlaceholder(en('namePh'));
+  let body = byPlaceholder(en('bodyPh'));
   if (!name || !body) throw new Error('modal not open');
   console.log(' A1 modal open ok');
   // A2: 连续输入 ≥20 字符（名称+正文）
@@ -71,8 +72,8 @@ async function testCompactHover() {
   const longBody = 'b'.repeat(30);
   TR.act(() => { name.props.onChange({ target: { value: longName } }); });
   TR.act(() => { body.props.onChange({ target: { value: longBody } }); });
-  name = byPlaceholder(zh('namePh'));
-  body = byPlaceholder(zh('bodyPh'));
+  name = byPlaceholder(en('namePh'));
+  body = byPlaceholder(en('bodyPh'));
   if (name.props.value !== longName || body.props.value !== longBody) throw new Error('typing failed');
   console.log(' A2 typed 20+ chars ok');
   // A3: hover 离开不应关窗（多次）
@@ -83,10 +84,10 @@ async function testCompactHover() {
     await new Promise(r => setTimeout(r, 220));
     TR.act(() => {});
     const openNodes = root.findAll(x => x.props && x.props['data-host'] === 'open');
-    const modalStill = !!byPlaceholder(zh('namePh'));
+    const modalStill = !!byPlaceholder(en('namePh'));
     if (openNodes.length === 0 || !modalStill) throw new Error('hover leave closed modal at iteration ' + i);
     // ensure text still there
-    name = byPlaceholder(zh('namePh'));
+    name = byPlaceholder(en('namePh'));
     if (name.props.value !== longName) throw new Error('text lost after hover at iteration ' + i);
   }
   console.log(' A3 hover leaves suppressed ok');
@@ -96,36 +97,37 @@ async function testCompactHover() {
     TR.act(() => { bump.props.onClick(); });
     await new Promise(r => setTimeout(r, 10));
     TR.act(() => {});
-    name = byPlaceholder(zh('namePh'));
-    body = byPlaceholder(zh('bodyPh'));
+    name = byPlaceholder(en('namePh'));
+    body = byPlaceholder(en('bodyPh'));
     if (!name || name.props.value !== longName) throw new Error('name lost after tick ' + i + ': ' + (name && name.props.value));
     if (!body || body.props.value !== longBody) throw new Error('body lost after tick ' + i);
   }
   console.log(' A4 external tick survives ok');
   // A5: 内部状态切换（tab / domain / 搜索）不应丢输入
   // 触发方式：直接找到 tab 按钮并点击（会触发 tabState + refresh）
-  const tabBtn = byText('\u6267\u884C\u524D'); // 执行前
+  // en UI：预制阶段/领域显示走 PRESET_WORD_EN（执行前→Before，学习→Learning）
+  const tabBtn = byText('Before') || byText('\u6267\u884C\u524D');
   if (tabBtn) {
     TR.act(() => { tabBtn.props.onClick(); });
     TR.act(() => {});
-    name = byPlaceholder(zh('namePh'));
+    name = byPlaceholder(en('namePh'));
     if (!name || name.props.value !== longName) throw new Error('name lost after tab switch');
     console.log(' A5a tab switch survives ok');
   }
-  const domainBtn = byText('\u5B66\u4E60'); // 学习
+  const domainBtn = byText('Learning') || byText('\u5B66\u4E60');
   if (domainBtn) {
     TR.act(() => { domainBtn.props.onClick(); });
     TR.act(() => {});
-    name = byPlaceholder(zh('namePh'));
+    name = byPlaceholder(en('namePh'));
     if (!name || name.props.value !== longName) throw new Error('name lost after domain switch');
     console.log(' A5b domain switch survives ok');
   }
   // 搜索框输入
-  const searchInput = root.findAll(x => x.type === 'input' && x.props && x.props.placeholder === zh('searchPh'))[0];
+  const searchInput = root.findAll(x => x.type === 'input' && x.props && x.props.placeholder === en('searchPh'))[0];
   if (searchInput) {
     TR.act(() => { searchInput.props.onChange({ target: { value: 'test' } }); });
     TR.act(() => {});
-    name = byPlaceholder(zh('namePh'));
+    name = byPlaceholder(en('namePh'));
     if (!name || name.props.value !== longName) throw new Error('name lost after search');
     console.log(' A5c search change survives ok');
   }
@@ -133,7 +135,7 @@ async function testCompactHover() {
   const cancelBtn = byText(CANCEL);
   if (!cancelBtn) throw new Error('cancel not found');
   TR.act(() => { cancelBtn.props.onClick(); });
-  if (byPlaceholder(zh('namePh'))) throw new Error('modal should be closed after cancel');
+  if (byPlaceholder(en('namePh'))) throw new Error('modal should be closed after cancel');
   console.log(' A6 cancel closes modal ok');
   // A7: 关闭后 hover 离开应关面板
   const panelAfter = root.findAll(x => x.props && typeof x.props.onMouseLeave === 'function')[0];
@@ -165,19 +167,20 @@ async function testNonCompactRemount() {
   const root = created.root;
   const PLUS = '\uFF0B';
   const byText = (txt) => root.findAll((x) => x.type === 'button' && Array.isArray(x.children) && x.children.some((c) => typeof c === 'string' && c.includes(txt)))[0];
+  const byHook = (name) => root.findAll((x) => x.type === 'button' && x.props && x.props['data-dsh-prompt-chrome'] === name)[0];
   const byPlaceholder = (ph) => root.findAll((x) => (x.type === 'input' || x.type === 'textarea') && x.props && x.props.placeholder === ph)[0];
-  const addBtn = byText(PLUS);
+  const addBtn = byHook('plusGlyph') || byText(PLUS) || byText('+');
   if (!addBtn) throw new Error('B: add button not found');
   TR.act(() => { addBtn.props.onClick(); });
-  let name = byPlaceholder(zh('namePh'));
+  let name = byPlaceholder(en('namePh'));
   if (!name) throw new Error('B: modal not open');
   TR.act(() => { name.props.onChange({ target: { value: 'my tmpl' } }); });
-  const body = byPlaceholder(zh('bodyPh'));
+  const body = byPlaceholder(en('bodyPh'));
   TR.act(() => { body.props.onChange({ target: { value: 'body here' } }); });
   const bump = root.findAll((x) => x.type === 'button' && x.props && x.props.id === 'bump')[0];
   TR.act(() => { bump.props.onClick(); });
-  name = byPlaceholder(zh('namePh'));
-  const body2 = byPlaceholder(zh('bodyPh'));
+  name = byPlaceholder(en('namePh'));
+  const body2 = byPlaceholder(en('bodyPh'));
   if (!name || name.props.value !== 'my tmpl') throw new Error('B: name reset after parent re-render');
   if (!body2 || body2.props.value !== 'body here') throw new Error('B: body reset');
   console.log('=== Test B PASS ===');
@@ -256,20 +259,21 @@ async function testCompensateClose() {
       TR.act(() => { created = TR.create(React.createElement(Host)); });
       const root = created.root;
       const byText = (txt) => root.findAll((x) => x.type === 'button' && Array.isArray(x.children) && x.children.some((c) => typeof c === 'string' && c.includes(txt)))[0];
+      const byHook = (name) => root.findAll((x) => x.type === 'button' && x.props && x.props['data-dsh-prompt-chrome'] === name)[0];
       const byPlaceholder = (ph) => root.findAll((x) => (x.type === 'input' || x.type === 'textarea') && x.props && x.props.placeholder === ph)[0];
-      const addBtn = byText('\uFF0B');
+      const addBtn = byHook('plusGlyph') || byText('\uFF0B') || byText('+');
       if (!addBtn) throw new Error('D modal add not found');
       TR.act(() => { addBtn.props.onClick(); });
-      if (!byPlaceholder(zh('namePh'))) throw new Error('D modal not open');
+      if (!byPlaceholder(en('namePh'))) throw new Error('D modal not open');
       // 弹窗开着时离场 → 被抑制门丢弃（无待定计时，这就是 bug 的温床）
       const panelRoot = root.findAll(x => x.props && typeof x.props.onMouseLeave === 'function' && typeof x.props.onMouseEnter === 'function')[0];
       if (!panelRoot) throw new Error('D panel hover not found');
       TR.act(() => { panelRoot.props.onMouseLeave(); });
       // 在外关闭弹窗（取消键在弹窗里，指针位置由 entryHover 桩决定）
-      const cancelBtn = byText('\u53D6\u6D88');
+      const cancelBtn = byText(en('cancel'));
       if (!cancelBtn) throw new Error('D cancel not found');
       TR.act(() => { cancelBtn.props.onClick(); });
-      if (byPlaceholder(zh('namePh'))) throw new Error('D modal should be closed after cancel');
+      if (byPlaceholder(en('namePh'))) throw new Error('D modal should be closed after cancel');
       await new Promise(r => setTimeout(r, 230));
       TR.act(() => {});
       const openNodes = root.findAll(x => x.props && x.props['data-host'] === 'open');

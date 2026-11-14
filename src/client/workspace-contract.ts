@@ -358,21 +358,21 @@ export function filterWorkspaceSessions(sessions: WorkspaceSession[], query: unk
   } catch (e) { return [] }
 }
 
-/** 紧凑相对时间（v7 口径中文：刚刚/5分/3时/2天；英文：now/5m/3h/2d；悬停看绝对，不抛） */
+/** 紧凑相对时间（fork：en now/5m/3h/2d；pt agora/5min/3h/2d；悬停看绝对，不抛） */
 export function relativeWorkspaceTime(ts: unknown, now?: number, lang?: string): string {
   try {
-    const en = lang === 'en'
+    const pt = lang === 'pt'
     const t = Number(ts)
     if (!isFinite(t) || t <= 0) return ''
     const base = typeof now === 'number' && isFinite(now) ? now : Date.now()
     const d = base - t
-    if (d < 0) return en ? 'now' : '刚刚'
+    if (d < 0) return pt ? 'agora' : 'now'
     const m = Math.floor(d / 60000)
-    if (m < 1) return en ? 'now' : '刚刚'
-    if (m < 60) return en ? m + 'm' : m + '分'
+    if (m < 1) return pt ? 'agora' : 'now'
+    if (m < 60) return pt ? m + 'min' : m + 'm'
     const h = Math.floor(m / 60)
-    if (h < 24) return en ? h + 'h' : h + '时'
-    return en ? Math.floor(h / 24) + 'd' : Math.floor(h / 24) + '天'
+    if (h < 24) return h + 'h'
+    return Math.floor(h / 24) + 'd'
   } catch (e) { return '' }
 }
 

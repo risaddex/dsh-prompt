@@ -161,7 +161,7 @@ function groupE() {
 
 // ═══ F) i18n 运行时 ═══
 function groupF() {
-  const zh = (k) => i18n.tr('zh', STR[k]);
+  const zh = (k) => i18n.tr('en', STR[k]);
   const en = (k) => i18n.tr('en', STR[k]);
   eq(zh('showPreset'), '展示预制模板', 'F) zh 屏蔽中按钮文案=展示预制模板（动作式）');
   eq(zh('hidePreset'), '屏蔽预制模板', 'F) zh 展示中按钮文案=屏蔽预制模板');

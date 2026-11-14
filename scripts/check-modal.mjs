@@ -23,16 +23,15 @@ buildFlat(DIR, [
   PANEL_TS,
 ]);
 try {
-  // 语言钉死成 zh：本脚本断言的是中文界面（占位符、按钮文案走 zh 词表）。
-  // Node ≥21 自带 `navigator`，其 language 来自 ICU 默认区域 —— 开发机（zh-CN）与 CI（en-US）
-  // 因此渲染出两套文案：CI 上「＋ 新增」变成「+ Add」，按字形找按钮就会误红
-  // （2026-10-31 CI 首次跑就踩到）。共享件里钉一次，同一份提交在两种机器上断言同一个界面。
+  // 语言钉死成 en（pinLocaleZh 现为 en 别名）：本脚本断言英文界面（占位符、按钮文案走 en 词表）。
+  // Node ≥21 自带 `navigator`，其 language 来自 ICU 默认区域 —— 开发机与 CI 可能不一致。
+  // 共享件里钉一次，同一份提交在两种机器上断言同一个界面。
   require('./lib/pin-locale.cjs').pinLocaleZh();
   const React = require('react');
   const TR = require('react-test-renderer');
   const { TemplateBrowser } = require(path.join(DIR, 'template-browser.cjs'));
   const { tr, STR } = require(path.join(DIR, 'strings.cjs'));
-  const zh = (k) => tr('zh', STR[k]);
+  const en = (k) => tr('en', STR[k]);
   console.log('step1: modules loaded, react', React.version);
 
   function Wrapper() {
@@ -57,27 +56,27 @@ try {
   TR.act(() => { addBtn.props.onClick() });
   console.log('step3: modal open');
 
-  let name = byPlaceholder(zh('namePh'));
+  let name = byPlaceholder(en('namePh'));
   if (!name) { console.log('FAIL: name input not found'); process.exit(1) }
-  TR.act(() => { name.props.onChange({ target: { value: '我的模板' } }) });
-  const body = byPlaceholder(zh('bodyPh'));
-  TR.act(() => { body.props.onChange({ target: { value: '请用第一性原理分析' } }) });
+  TR.act(() => { name.props.onChange({ target: { value: 'My template' } }) });
+  const body = byPlaceholder(en('bodyPh'));
+  TR.act(() => { body.props.onChange({ target: { value: 'Analyze with first principles' } }) });
   console.log('step4: typed name+body');
 
   const bump = root.findAll((x) => x.type === 'button' && x.props && x.props.id === 'bump')[0];
   TR.act(() => { bump.props.onClick() });
   console.log('step5: parent re-rendered');
 
-  name = byPlaceholder(zh('namePh'));
-  const body2 = byPlaceholder(zh('bodyPh'));
-  if (!name || name.props.value !== '我的模板') { console.log('FAIL(reproduced): name reset -> ' + JSON.stringify(name && name.props.value)); process.exit(1) }
-  if (!body2 || body2.props.value !== '请用第一性原理分析') { console.log('FAIL(reproduced): body reset -> ' + JSON.stringify(body2 && body2.props.value)); process.exit(1) }
+  name = byPlaceholder(en('namePh'));
+  const body2 = byPlaceholder(en('bodyPh'));
+  if (!name || name.props.value !== 'My template') { console.log('FAIL(reproduced): name reset -> ' + JSON.stringify(name && name.props.value)); process.exit(1) }
+  if (!body2 || body2.props.value !== 'Analyze with first principles') { console.log('FAIL(reproduced): body reset -> ' + JSON.stringify(body2 && body2.props.value)); process.exit(1) }
 
-  TR.act(() => { name.props.onChange({ target: { value: '我的模板2' } }) });
+  TR.act(() => { name.props.onChange({ target: { value: 'My template 2' } }) });
   TR.act(() => { bump.props.onClick() });
   TR.act(() => { bump.props.onClick() });
-  name = byPlaceholder(zh('namePh'));
-  if (!name || name.props.value !== '我的模板2') { console.log('FAIL: text lost across repeated re-renders -> ' + JSON.stringify(name && name.props.value)); process.exit(1) }
+  name = byPlaceholder(en('namePh'));
+  if (!name || name.props.value !== 'My template 2') { console.log('FAIL: text lost across repeated re-renders -> ' + JSON.stringify(name && name.props.value)); process.exit(1) }
 
   console.log('PASS: modal text survives parent re-renders');
   process.exit(0);

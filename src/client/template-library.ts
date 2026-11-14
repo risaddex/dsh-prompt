@@ -23,6 +23,7 @@
  */
 import type { PromptTemplate } from './templates'
 import { PRESET_TEMPLATES, getPresetById } from './templates'
+import { setUiLangPreference, type Lang } from './locale'
 
 
 const MAX_PIN = 5
@@ -65,6 +66,8 @@ const PINNED_URL = '/_dsh/dsh-prompt/pinned/set'
 const HIDE_URL = '/_dsh/dsh-prompt/hide/set'
 // #179 触发方式：同一条 host global 区，缺省=true（悬浮触发，历史行为一字不动）
 const HOVER_TRIGGER_URL = '/_dsh/dsh-prompt/trigger/set'
+// Fork: UI language preference (en|pt), default en; same host global area as hide/trigger.
+const LANG_URL = '/_dsh/dsh-prompt/lang/set'
 
 interface StoreSnapshot {
   customs: CustomTemplate[]
@@ -73,11 +76,12 @@ interface StoreSnapshot {
   lastUsed: string | null
   hidePreset: boolean
   hoverTrigger: boolean
+  uiLang: Lang
 }
 
 /* ── 内存缓存（唯一真相来源；初始空 = 直接切换语义） ── */
 
-const cache: StoreSnapshot = { customs: [], usage: {}, pinned: [], lastUsed: null, hidePreset: true, hoverTrigger: true }
+const cache: StoreSnapshot = { customs: [], usage: {}, pinned: [], lastUsed: null, hidePreset: true, hoverTrigger: true, uiLang: 'en' }
 let storeLoaded = false
 let loadPromise: Promise<void> | null = null
 // #91 启动竞态兜底旗（与 remote.ts loadRetried 同构）：快照失败只补一次延迟重拉。
@@ -117,6 +121,7 @@ const ROUTE_NAMES: Record<string, string> = {
   [PINNED_URL]: 'pinned.set',
   [HIDE_URL]: 'hide.set',
   [HOVER_TRIGGER_URL]: 'trigger.set',
+  [LANG_URL]: 'lang.set',
 }
 
 /** 拉取 host 快照并装入缓存（失败 → 保持内存默认 + 记事件，不读旧 localStorage；#91 起失败补一次 2500ms 延迟重拉，与 remote 同构）。 */
@@ -134,6 +139,8 @@ export function ensureLoaded(): Promise<void> {
       cache.lastUsed = typeof v.lastUsed === 'string' ? v.lastUsed : null
       cache.hidePreset = normalizeHidePreset((v as { hidePreset?: unknown }).hidePreset)
       cache.hoverTrigger = normalizeHoverTrigger((v as { hoverTrigger?: unknown }).hoverTrigger)
+      cache.uiLang = normalizeUiLang((v as { uiLang?: unknown }).uiLang)
+      setUiLangPreference(cache.uiLang)
       logEvent('store.snapshot.ok', { customs: cache.customs.length, pinned: cache.pinned.length, latencyMs: Date.now() - startedAt })
     } else {
       logEvent('store.snapshot.fail', {
@@ -273,6 +280,27 @@ export function saveHoverTrigger(hover: boolean): void {
   cache.hoverTrigger = hover === false ? false : true
   notifyStore()
   persist(HOVER_TRIGGER_URL, { hover: cache.hoverTrigger })
+}
+
+/* ── UI language (fork: en|pt, default en; host global) ── */
+
+/** 读侧归一：只认 'en'|'pt'；缺键/非法 → 'en'。 */
+export function normalizeUiLang(v: unknown): Lang {
+  return v === 'pt' ? 'pt' : 'en'
+}
+
+/** 当前插件 UI 语言（读走内存缓存）。 */
+export function loadUiLang(): Lang {
+  return cache.uiLang
+}
+
+/** 设置 UI 语言（内存先行 + locale 偏好 + notifyStore，再 fire-and-forget 落 host）。 */
+export function saveUiLang(lang: Lang): void {
+  const next = normalizeUiLang(lang)
+  cache.uiLang = next
+  setUiLangPreference(next)
+  notifyStore()
+  persist(LANG_URL, { lang: cache.uiLang })
 }
 
 /** 全部模板（预制 + 自定义） */
@@ -452,7 +480,8 @@ export function stripCursorMarkers(body: string): { text: string; caret: number 
 /** 检索串（面板搜索与 /prompt 触发源共用）：名称/英文名/正文/领域/阶段/动作/标签（旧找法不断）
  *  #178 R2：正文先剥光标标记 —— 搜索不能把 {{cursor}} 当关键词命中。 */
 export function templateHaystack(t: PromptTemplate): string {
-  return (t.name + ' ' + (t.nameEn || '') + ' ' + stripCursorMarkers(t.body || '').text + ' ' + (t.domain || '') + ' ' + (t.stage || '') + ' ' + (t.action || []).join(' ') + ' ' + templateLabels(t).join(' ')).toLowerCase()
+  // Include nameEn + namePt so search matches the displayed locale name (Codex P2 on #1).
+  return (t.name + ' ' + (t.nameEn || '') + ' ' + (t.namePt || '') + ' ' + stripCursorMarkers(t.body || '').text + ' ' + (t.domain || '') + ' ' + (t.stage || '') + ' ' + (t.action || []).join(' ') + ' ' + templateLabels(t).join(' ')).toLowerCase()
 }
 
 /**

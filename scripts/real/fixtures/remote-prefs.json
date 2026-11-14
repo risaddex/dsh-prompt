@@ -14,13 +14,22 @@
   },
   "expect": {
     "storePresent": true,
-    "unit": { "name": "dsh_prompt", "version": 0 },
+    "unit": {
+      "name": "dsh_prompt",
+      "version": 0
+    },
     "customs": [],
     "usage": {},
     "pinned": [],
     "lastUsed": null,
-    "remote": { "enabled": false, "size": 3, "orientation": "landscape", "density": "b" },
+    "remote": {
+      "enabled": false,
+      "size": 3,
+      "orientation": "landscape",
+      "density": "b"
+    },
     "hidePreset": true,
-    "hoverTrigger": true
+    "hoverTrigger": true,
+    "uiLang": "en"
   }
 }

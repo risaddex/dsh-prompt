@@ -3,20 +3,20 @@
  * 跑浏览器 bundle 线；禁被 src/update/host 进口（DO-NOT-IMPORT），禁跨运行时进口。
  */
 /**
- * dsh-prompt — 语言解析与订阅（#137 基建，见 docs/adr/0006-locale-identity-and-subscription.md）
+ * dsh-prompt — 语言解析与订阅（fork：EN default + PT option + plugin language toggle）
  *
- * 三件事，各只留一份实现：
- *   1) resolveLocale 纯函数：显式覆盖 > 已装宿主服务 > html[lang] > navigator.languages/language > 默认 zh；
+ * 四件事，各只留一份实现：
+ *   1) resolveLocale 纯函数：插件偏好覆盖 > 显式 override > 已装宿主服务 > html[lang] > navigator > 默认 en；
  *   2) subscribeLocale 单例订阅：全模块共用一个 html[lang] MutationObserver（+ 至多一个宿主服务订阅），
- *      回调前与上次解析值比对去重（字典注册只 bump revision，不该引发重渲染）；
- *   3) installLocaleService：由 index.ts 在 apply 里把 ctx.get('locale') 包成适配器装进来
- *      （ctx.get 免声明；不往插件 inject 加 'locale'）。
+ *      回调前与上次解析值比对去重；
+ *   3) installLocaleService：由 index.ts 在 apply 里把 ctx.get('locale') 包成适配器装进来；
+ *   4) setUiLangPreference / getUiLangPreference：插件级 EN↔PT 覆盖（持久化由 template-library 负责），
+ *      不写 html[lang]、不调宿主 setLocale（宿主 syncDocumentLanguage 仍是 html[lang] 唯一主人）。
  *
- * 【禁区】本模块只读 documentElement.lang，**绝不写它** —— 宿主 locale 包的 syncDocumentLanguage
- * 是 html[lang] 的唯一主人（ADR-0006「订阅不写回」，插件写即与宿主打架）；也不调 setLocale
- * （本图不做插件级语言覆盖开关）。navigator.* 只读，异常一律 fail-soft 落默认、不抛。
+ * 【禁区】本模块只读 documentElement.lang，**绝不写它**；也不调宿主 setLocale。
+ * navigator.* 只读，异常一律 fail-soft 落默认、不抛。
  */
-export type Lang = 'zh' | 'en'
+export type Lang = 'en' | 'pt'
 
 /** 显式覆盖的服务形态：稳定码字符串、或带 getActive/subscribe 的宿主面（可注入假信号源，测试不依赖 jsdom）。 */
 export interface LocaleService {
@@ -26,16 +26,43 @@ export interface LocaleService {
 export type LocaleOverride = string | LocaleService | null | undefined
 
 /**
- * 归一语言标签：zh* → zh；形如 BCP47 的已知非中文标签 → en（与 dsh-plugin-update 同构）；
- * 空/垃圾/非字符串 → def。大小写不敏感，下划线视作横线。
- * 非 BCP47 垃圾（如 '123'）→def（旧 getLang 会落 en，此处有意收敛到 zh，与 update 包同构）。
+ * 插件级 UI 语言偏好（fork）：'en'|'pt' 强制；null = 跟随宿主/DOM（仅测试/卸载用）。
+ * 产品默认 'en' —— 不跟随宿主，直到用户切换或快照带回已存偏好。
  */
-export function normalizeLangTag(tag: unknown, def: Lang = 'zh'): Lang {
+let uiLangPreference: Lang | null = 'en'
+
+/** 读当前插件偏好（null = 跟随宿主）。 */
+export function getUiLangPreference(): Lang | null {
+  return uiLangPreference
+}
+
+/**
+ * 写插件偏好并通知订阅者。传 null 清除覆盖、回到宿主跟随（门禁/测试用）。
+ * 非法值 fail-soft 忽略（保持原值）。
+ */
+export function setUiLangPreference(next: Lang | null | undefined): void {
+  let v: Lang | null
+  if (next === 'en' || next === 'pt') v = next
+  else if (next == null) v = null
+  else return
+  if (v === uiLangPreference) return
+  uiLangPreference = v
+  notifyAll()
+}
+
+/**
+ * 归一语言标签：pt* → pt；en* / 已知非葡语 BCP47 → en；
+ * 空/垃圾/非字符串 → def。大小写不敏感，下划线视作横线。
+ * 宿主仍可能发 zh*：本 fork 无中文 UI，归一到默认 en（或 def）。
+ */
+export function normalizeLangTag(tag: unknown, def: Lang = 'en'): Lang {
   if (typeof tag !== 'string') return def
   const s = tag.trim().toLowerCase().replace(/_/g, '-')
   if (!s) return def
-  if (s === 'zh' || s.startsWith('zh-')) return 'zh'
+  if (s === 'pt' || s.startsWith('pt-')) return 'pt'
   if (s === 'en' || s.startsWith('en-')) return 'en'
+  // Host zh / other BCP47 → English UI for this fork (no zh chrome).
+  if (s === 'zh' || s.startsWith('zh-')) return def
   if (/^[a-z]{2,3}(-[a-z0-9]+)*$/.test(s)) return 'en'
   return def
 }
@@ -64,11 +91,13 @@ function readNavigatorLangs(): string[] {
 }
 
 /**
- * 解出当前语言。纯函数（只读全局信号），无信号/任何异常落默认（默认 zh 保历史行为）。
- * 不传 override 时，已安装的宿主服务适配器即为隐式覆盖（宿主快照比 DOM 更新鲜，见 research §5）。
+ * 解出当前语言。无信号/任何异常落默认（默认 en）。
+ * 优先级：显式 override 参数 ＞ 插件偏好（EN/PT toggle）＞ 已装宿主服务 ＞ html[lang]
+ * ＞ navigator ＞ 默认 en。toggle 必须立刻盖过宿主 zh，但测试仍可传 override 钉死语言。
  */
-export function resolveLocale(override?: LocaleOverride, def: Lang = 'zh'): Lang {
-  const src: LocaleOverride = override != null ? override : (service || undefined)
+export function resolveLocale(override?: LocaleOverride, def: Lang = 'en'): Lang {
+  const explicit = arguments.length >= 1
+  const src: LocaleOverride = explicit ? override : undefined
   if (src != null) {
     if (typeof src === 'object') {
       try {
@@ -81,6 +110,18 @@ export function resolveLocale(override?: LocaleOverride, def: Lang = 'zh'): Lang
     } else if (typeof src === 'string' && src.trim()) {
       return normalizeLangTag(src, def)
     }
+  }
+  if (!explicit && (uiLangPreference === 'en' || uiLangPreference === 'pt')) {
+    return uiLangPreference
+  }
+  if (!explicit && service) {
+    try {
+      const fn = service.getActive
+      if (typeof fn === 'function') {
+        const v = fn.call(service)
+        if (typeof v === 'string' && v.trim()) return normalizeLangTag(v, def)
+      }
+    } catch (e) { /* ignore */ }
   }
   const docLang = readDocumentLang()
   if (docLang !== null) return normalizeLangTag(docLang, def)
@@ -151,7 +192,7 @@ function releaseServiceSub(): void {
 }
 
 /**
- * 订阅语言变化：html[lang] 变（兜底，永远在册）或宿主服务发布时投递新语言。
+ * 订阅语言变化：html[lang] 变（兜底，永远在册）或宿主服务发布、或插件偏好切换时投递新语言。
  * 模块级单例 —— 多个面共用一个观察者与一个服务订阅，不是每面一套。
  * 返回 unsubscribe：退订该面；最后一个面退订时断开观察者与服务订阅（无泄漏）。
  * 无 DOM / 无宿主面的环境安全降级：只记回调、永不触发，不抛。

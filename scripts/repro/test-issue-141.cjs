@@ -255,8 +255,10 @@ const EXPECT_HOOKS = [
   // 字典二级断言（审计 §5）：en 值不得含 CJK（zh 值含 CJK，例外只有品牌词 Prompt）
   const enCJK = Object.keys(STR).filter((k) => CJK.test(STR[k].en));
   eq(JSON.stringify(enCJK), '[]', 'STR 全字典 en 值零 CJK');
-  const zhPlain = Object.keys(STR).filter((k) => !CJK.test(STR[k].zh));
-  eq(zhPlain.sort().join('/'), 'entryBtn/panelTitle', 'STR zh 值不含 CJK 的只有品牌词 panelTitle/entryBtn');
+  const ptCJK = Object.keys(STR).filter((k) => CJK.test(STR[k].pt));
+  eq(JSON.stringify(ptCJK), '[]', 'STR 全字典 pt 值零 CJK');
+  eq(STR.panelTitle.en, STR.panelTitle.pt, '品牌词 panelTitle en/pt 可同文');
+  eq(STR.entryBtn.en, STR.entryBtn.pt, '品牌词 entryBtn en/pt 可同文');
   if (failures === 0) ok('E) 铬钩子：' + EXPECT_HOOKS.length + ' 个键齐、均为 STR key、en 零 CJK');
 }
 
@@ -308,7 +310,7 @@ const hookAttrs = (n) => {
 async function openDelModal() {
   let tree;
   TR.act(() => { tree = TR.create(React.createElement(panel.TemplateBrowser, { compact: false })); });
-  const rowDel = tree.root.findAll((n) => n.type === 'button' && (n.children || []).filter((c) => typeof c === 'string').join('') === STR.del[docEl.lang.indexOf('en') === 0 ? 'en' : 'zh'])[0];
+  const rowDel = tree.root.findAll((n) => n.type === 'button' && (n.children || []).filter((c) => typeof c === 'string').join('') === STR.del[String(docEl.lang||'').toLowerCase().indexOf('pt') === 0 ? 'pt' : 'en'])[0];
   if (!rowDel) { fail('找不到设置页行内删除键（lang=' + docEl.lang + '）'); return tree; }
   TR.act(() => { rowDel.props.onClick({ stopPropagation() {} }); });
   TR.act(() => {});

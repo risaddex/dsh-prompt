@@ -98,7 +98,7 @@ if (page) {
 {
   const STR = i18nMod.STR;
   const enActs = (STR.edit.en + STR.del.en).length;
-  const zhActs = (STR.edit.zh + STR.del.zh).length;
+  const zhActs = (STR.edit.en + STR.del.en).length;
   if (!(enActs > zhActs)) fail('en Edit+Delete 应比 zh 编辑+删除长（助因 R2），实际 en=' + enActs + ' zh=' + zhActs);
   if (failures === 0) ok('双语：en 操作串比 zh 长（English 先爆助因成立）');
 }

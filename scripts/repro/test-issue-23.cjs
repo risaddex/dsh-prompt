@@ -36,7 +36,7 @@ const trigger = req('prompt-trigger');
 const match = req('smart-score');
 const panel = req('template-browser');
 const { tr, STR } = req('strings');
-const zh = (k) => tr('zh', STR[k]);
+const zh = (k) => tr('en', STR[k]);
 // #165：缺省=屏蔽会藏预置云词/行，本票断言标签语义（全量池），显式钉住展示（屏蔽态由 165 门禁覆盖）。
 try { if (store.saveHidePreset) store.saveHidePreset(false); } catch (e) {}
 

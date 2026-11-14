@@ -33,7 +33,7 @@ const i18nMod = req('strings');
 const stateMod = req('panel-visibility');
 const storeMod = req('template-library');
 const remoteMod = req('remote-mode');
-const LANG = (typeof i18nMod.getLang === 'function' ? i18nMod.getLang() : 'zh');
+const LANG = (typeof i18nMod.getLang === 'function' ? i18nMod.getLang() : 'en');
 const T = (k) => i18nMod.tr(LANG, i18nMod.STR[k]);
 try { if (storeMod.__resetStoreForTests) storeMod.__resetStoreForTests(); } catch (e) { /* 无复位钩子则继续 */ }
 try { if (remoteMod.__resetRemoteForTests) remoteMod.__resetRemoteForTests(); } catch (e) { /* 同上 */ }
@@ -266,15 +266,15 @@ if (failures === 0) ok('F) 源码级：上限/顺序/触发器识别/失败留�
 
 // i18n：新词条双语齐
 const failEntry = i18nMod.STR.goSettingsFail;
-if (!failEntry || !failEntry.zh || !failEntry.en) fail('i18n 应加 goSettingsFail 且 zh/en 齐');
-else if (failEntry.zh === i18nMod.STR.goSettings.zh) fail('goSettingsFail 不得与 goSettings 同文（失败提示要能区分）');
+if (!failEntry || !failEntry.en || !failEntry.pt) fail('i18n 应加 goSettingsFail 且 en/pt 齐');
+else if (failEntry.en === i18nMod.STR.goSettings.en) fail('goSettingsFail 不得与 goSettings 同文（失败提示要能区分）');
 // #150：短形词条（底栏合并行显示用）
 const shortEntry = i18nMod.STR.goSettingsShort;
-if (!shortEntry || !shortEntry.zh || !shortEntry.en) fail('i18n 应加 goSettingsShort 且 zh/en 齐');
+if (!shortEntry || !shortEntry.en || !shortEntry.pt) fail('i18n 应加 goSettingsShort 且 en/pt 齐');
 else {
-  if (shortEntry.zh === i18nMod.STR.goSettings.zh) fail('goSettingsShort 应与全称不同（否则短形没意义）');
-  if (String(shortEntry.zh).length >= String(i18nMod.STR.goSettings.zh).length) fail('中文短形应比全称短');
+  if (shortEntry.en === i18nMod.STR.goSettings.en) fail('goSettingsShort 应与全称不同（否则短形没意义）');
   if (String(shortEntry.en).length >= String(i18nMod.STR.goSettings.en).length) fail('英文短形应比全称短');
+  if (String(shortEntry.pt).length >= String(i18nMod.STR.goSettings.pt).length) fail('葡文短形应比全称短');
 }
 if (failures === 0) ok('i18n：goSettingsFail / goSettingsShort 双语齐');
 

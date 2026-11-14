@@ -134,10 +134,10 @@ function scan() {
 // 字段：file 精确匹配；path 为 container 子串；text 为字面量精确匹配；三者都可省略（省略=通配）。
 // 顺序敏感：先命中者胜。改动 src 后若出现未命中行，脚本会 exit 1 逼你补规则。
 const RULES = [
-  // —— strings.ts（当时名 i18n.ts）：字典本身（唯一 seam），zh 值即 C1 目的地；en 值必须零 CJK ——
-  // #141 收口：铬字面量已全数迁入本字典（template-browser/settings-page/smart-card/remote-sheet 的散落串清零，当时名 panel/settings/smart/remoteInputSheet），
-  // 字典里那条唯一含 CJK 的 en 值（labelReserved）已随「砍保留词拒绝」删除。
-  { file: 'src/client/strings.ts', pathEnd: '.zh', cls: 'C1', action: '已在STR', consumer: '-' },
+  // —— strings.ts：字典本身（唯一 seam）。fork 为 en/pt；铬值应零 CJK，若再出现按已在 STR 归类 ——
+  // #141 收口：铬字面量已全数迁入本字典；原 .zh 路径改为 .en / .pt（本 fork 无 zh 键）。
+  { file: 'src/client/strings.ts', pathEnd: '.en', cls: 'C1', action: '已在STR', consumer: '-' },
+  { file: 'src/client/strings.ts', pathEnd: '.pt', cls: 'C1', action: '已在STR', consumer: '-' },
 
   // —— 内容资产（本图 Out of scope） ——
   { file: 'src/client/templates.ts', cls: 'C3', action: '不动(内容资产)', consumer: '-' },
@@ -145,6 +145,8 @@ const RULES = [
   // #145：预制词英译表的**键**就是预制标签词（内容资产原文；身份与过滤继续用中文原文，只有显示位走英译）。
   // 归类按内容资产记，动作注明"显示映射"——免得后人以为这些词也被搬进了铬字典。
   { file: 'src/client/label-identity.ts', path: 'PRESET_WORD_EN', cls: 'C3', action: '显示映射(en 词表)', consumer: '145' },
+  // fork：葡译表与 EN 同键，显示形用 pt-BR。
+  { file: 'src/client/label-identity.ts', path: 'PRESET_WORD_PT', cls: 'C3', action: '显示映射(pt 词表)', consumer: '-' },
 
   // —— 身份 / 存储值（C2：身份与显示分离，用户数据永不改写） ——
   // #141 收口：去留表与范围别名单点移到 label-identity.ts（当时名 keys.ts；template-browser 的 CLOUD_EXCLUDE、remote-grid 的重复表与

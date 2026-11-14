@@ -138,7 +138,7 @@ function readSrc(rel) { return fs.readFileSync(path.join(ROOT, rel), 'utf8'); }
   try {
     const about = require(path.join(DIR, 'settings-links.cjs'));
     let hdr;
-    await TR.act(async () => { hdr = TR.create(React.createElement(about.SettingsHeaderLinks, { lang: 'zh', entry: React.createElement('span', { 'data-test-entry': '' }, 'ENTRY') })); });
+    await TR.act(async () => { hdr = TR.create(React.createElement(about.SettingsHeaderLinks, { lang: 'en', entry: React.createElement('span', { 'data-test-entry': '' }, 'ENTRY') })); });
     await flush();
     const anchors = hdr.root.findAll(x => x.type === 'a');
     if (anchors.length !== 2) bad('头行不传 entry 时应仍只有两图标（实际 ' + anchors.length + '）');
