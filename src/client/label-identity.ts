@@ -235,11 +235,35 @@ export function isPresetWord(word: string): boolean {
 export function displayTemplateName(t: PromptTemplate, lang: Lang): string {
   if (!t || !t.builtin) return (t && t.name) || ''
   if (lang === 'pt') {
-    const pt = (t as PromptTemplate & { namePt?: string }).namePt
+    const pt = t.namePt
     if (typeof pt === 'string' && pt.trim()) return pt
   }
   if (typeof t.nameEn === 'string' && t.nameEn.trim()) return t.nameEn
   return t.name || ''
+}
+
+/**
+ * 模板正文按 UI 语言（fork）：预制优先 bodyEn / bodyPt；自定义永远用 body。
+ * 插入、预览、简介、评分与检索展示位都走这里；落盘仍只写用户 body。
+ */
+export function resolveTemplateBody(t: PromptTemplate, lang: Lang): string {
+  if (!t) return ''
+  if (!t.builtin) return t.body || ''
+  switch (lang) {
+    case 'pt': {
+      if (typeof t.bodyPt === 'string' && t.bodyPt.trim()) return t.bodyPt
+      if (typeof t.bodyEn === 'string' && t.bodyEn.trim()) return t.bodyEn
+      return t.body || ''
+    }
+    case 'en': {
+      if (typeof t.bodyEn === 'string' && t.bodyEn.trim()) return t.bodyEn
+      return t.body || ''
+    }
+    default: {
+      const _exhaustive: never = lang
+      return _exhaustive
+    }
+  }
 }
 
 /**

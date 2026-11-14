@@ -40,7 +40,7 @@ import { tr, STR, type Lang } from './strings'
 import {
   SCOPE_ALL, SCOPE_PRESET, SCOPE_CUSTOM, isExcludedLabel,
   scopeSelection, selectionActive, toggleScope, toggleWord, wordActive, isNoFilter, type Selection,
-  displayLabelString, displayWord, displayTemplateName,
+  displayLabelString, displayWord, displayTemplateName, resolveTemplateBody,
 } from './label-identity'
 import { resolveLocale, subscribeLocale } from './locale'
 import { setSmartInput } from './smart-draft'
@@ -802,7 +802,7 @@ export function insertBody(useInput: any, inputActions: any, body: string): numb
 export function onPick(t: PromptTemplate, useInput: any, inputActions: any): void {
   if (!inputActions || typeof inputActions.setDraft !== 'function') return
   pickProbe(useInput, inputActions)
-  const draftChars = insertBody(useInput, inputActions, t.body)
+  const draftChars = insertBody(useInput, inputActions, resolveTemplateBody(t, resolveLocale()))
   logEvent('pick.insert', {
     source: 'panel',
     templateKind: t.builtin ? 'preset' : 'custom',
@@ -2095,7 +2095,7 @@ export function TemplateBrowser(props: BrowserProps): any {
       if (!tpl) return h('div', { key: 'empty-' + s.order, style: remoteEmptyStyle, 'data-dsh-prompt-remote-empty': '1', 'aria-hidden': 'true' })
       // 简介取正文全文（空白压成单空格），卡内自然流排、底边硬裁——全面展示，高度不跳。
       // #178：走单行预览（剥标记 + 空白压成单空格），不显示 {{cursor}}。
-      const intro = oneLinePreview(tpl.body)
+      const intro = oneLinePreview(resolveTemplateBody(tpl, lang))
       const usageN = remoteUsage[tpl.id] || 0
       const pinned = isPinned(tpl.id)
       const custom = !tpl.builtin
@@ -2337,7 +2337,7 @@ export function TemplateBrowser(props: BrowserProps): any {
     const itemOutline = isPressed ? '1px solid var(--dsw-alias-border-l1)' : undefined
     // 简介 = body 第一个非空行（一句话），标题之后跟随 —— 单行显示
     // #178：正文以空行开头时顺延到下一个非空行，不出空简介。
-    const intro = firstLineIntro(x.body)
+    const intro = firstLineIntro(resolveTemplateBody(x, lang))
     // #71 行内用量徽标：读 store 现有缓存（排序语义不动，只读展示）
     const usageN = (loadUsage()[x.id] || 0)
     // #141：用量 title 走词表（{n} 占位；与 remoteEffectiveNow 同法）
@@ -2409,7 +2409,7 @@ export function TemplateBrowser(props: BrowserProps): any {
           h('span', { style: ink ? { ...nmStyle, color: ink, paddingBlock: 2, marginBlock: -2, paddingInline: 2, marginInline: -2 } : nmStyle, ...(tint ? { [INK_TINT_ATTR]: '' } : {}) }, displayTemplateName(x, lang)),
           h('span', { style: tagStyle, ...(templateLabels(x).indexOf(LABEL_FALLBACK) >= 0 ? { 'data-dsh-prompt-chrome': 'labelFallback' } : {}) }, displayLabelString(x, lang)),
         ]),
-        expanded.has(x.id) ? h('span', { style: subStyle }, oneLinePreview(x.body).slice(0, 44) + '…') : null,
+        expanded.has(x.id) ? h('span', { style: subStyle }, oneLinePreview(resolveTemplateBody(x, lang)).slice(0, 44) + '…') : null,
       ]),
       h('div', { style: { flex: 'none', display: 'flex', alignItems: 'center', gap: 4, paddingTop: 2 } }, [acts]),
       // #71 用量徽标（设置页）：行最右（操作按钮之后、最末尾）；paddingTop 与图钉一致，与标题首行对齐，样式不变

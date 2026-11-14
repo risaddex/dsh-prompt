@@ -12,7 +12,7 @@
 import { getReact, INK_TINT_ATTR, applyInsert } from './template-browser'
 import { smartCandidates, firstFieldCaret, type ScoredTemplate } from './smart-score'
 import { allTemplates, bumpUsage, loadUsage, tieBreakOrder, templateLabels, LABEL_FALLBACK, inkColorOf, inkOutlineOf, stripCursorMarkers } from './template-library'
-import { displayLabelString, displayTemplateName } from './label-identity'
+import { displayLabelString, displayTemplateName, resolveTemplateBody } from './label-identity'
 import {
   getSmartInput, onSmartInput, isSmartEnabled, setSmartEnabled,
   onSmartEnabled, loadSmartPos, saveSmartPos, suppressCard, isSuppressed, clearSuppression,
@@ -289,7 +289,7 @@ export function SmartCardHost(props: any): any {
   // 不捕获键盘：Enter/↑↓ 保持输入框原生语义（用户要求），仅手动点击「点击填入」按钮录入
 
   const doPick = (c: ScoredTemplate) => {
-    smartInsert(c.tpl.body, c.tpl.id)
+    smartInsert(resolveTemplateBody(c.tpl, lang), c.tpl.id)
     setDismissed(true); setManualOpen(false)
   }
 
