@@ -305,6 +305,7 @@ deepEq(baselineFromStorePath(fixtureStorePath(missingHome)), {
   remote: { enabled: false, size: 5, orientation: 'auto', density: 'a' },
   hidePreset: true,
   hoverTrigger: true,
+  uiLang: 'en',
 }, '文件不存在时的基线 = 插件定义默认');
 ok(checkBaseline(cleanRecipe, baselineFromStorePath(fixtureStorePath(missingHome))).ok, '干净态配方与默认基线自洽');
 

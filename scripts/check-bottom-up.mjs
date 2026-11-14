@@ -30,7 +30,8 @@ function transpile(out, src, deps) {
 }
 transpile('templates.cjs', SRC('templates.ts'), []);
 transpile('words22.cjs', SRC('smart-words.ts'), []);
-transpile('store22.cjs', SRC('template-library.ts'), ['./templates']);
+transpile('locale.cjs', SRC('locale.ts'), []);
+transpile('store22.cjs', SRC('template-library.ts'), ['./templates', './locale']);
 {
   // match 引用 ./store → 需指向本文件的 store22.cjs
   let js = ts.transpileModule(fs.readFileSync(SRC('smart-score.ts'), 'utf8'), {

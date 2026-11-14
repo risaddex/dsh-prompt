@@ -12,8 +12,14 @@
     "usage": {},
     "pinned": [],
     "lastUsed": null,
-    "remote": { "enabled": false, "size": 5, "orientation": "auto", "density": "a" },
+    "remote": {
+      "enabled": false,
+      "size": 5,
+      "orientation": "auto",
+      "density": "a"
+    },
     "hidePreset": true,
-    "hoverTrigger": true
+    "hoverTrigger": true,
+    "uiLang": "en"
   }
 }

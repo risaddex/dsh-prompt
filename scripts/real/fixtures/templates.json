@@ -10,7 +10,9 @@
         "id": "fx-${runTag}-alpha",
         "name": "夹具模板 A（${runTag}）",
         "nameEn": "",
-        "labels": ["夹具"],
+        "labels": [
+          "夹具"
+        ],
         "body": "第一条夹具模板正文，run=${runTag}。",
         "builtin": false,
         "createdAt": 1700000000001
@@ -19,27 +21,60 @@
         "id": "fx-${runTag}-beta",
         "name": "夹具模板 B（${runTag}）",
         "nameEn": "",
-        "labels": ["夹具"],
+        "labels": [
+          "夹具"
+        ],
         "body": "第二条夹具模板正文。",
         "builtin": false,
         "createdAt": 1700000000002
       }
     ],
-    "usage": { "fx-${runTag}-alpha": 2 },
-    "pinned": ["fx-${runTag}-alpha"]
+    "usage": {
+      "fx-${runTag}-alpha": 2
+    },
+    "pinned": [
+      "fx-${runTag}-alpha"
+    ]
   },
   "expect": {
     "storePresent": true,
-    "unit": { "name": "dsh_prompt", "version": 0 },
+    "unit": {
+      "name": "dsh_prompt",
+      "version": 0
+    },
     "customs": [
-      { "id": "fx-${runTag}-alpha", "name": "夹具模板 A（${runTag}）", "builtin": false, "labels": ["夹具"] },
-      { "id": "fx-${runTag}-beta", "name": "夹具模板 B（${runTag}）", "builtin": false, "labels": ["夹具"] }
+      {
+        "id": "fx-${runTag}-alpha",
+        "name": "夹具模板 A（${runTag}）",
+        "builtin": false,
+        "labels": [
+          "夹具"
+        ]
+      },
+      {
+        "id": "fx-${runTag}-beta",
+        "name": "夹具模板 B（${runTag}）",
+        "builtin": false,
+        "labels": [
+          "夹具"
+        ]
+      }
     ],
-    "usage": { "fx-${runTag}-alpha": 2 },
-    "pinned": ["fx-${runTag}-alpha"],
+    "usage": {
+      "fx-${runTag}-alpha": 2
+    },
+    "pinned": [
+      "fx-${runTag}-alpha"
+    ],
     "lastUsed": null,
-    "remote": { "enabled": false, "size": 5, "orientation": "auto", "density": "a" },
+    "remote": {
+      "enabled": false,
+      "size": 5,
+      "orientation": "auto",
+      "density": "a"
+    },
     "hidePreset": true,
-    "hoverTrigger": true
+    "hoverTrigger": true,
+    "uiLang": "en"
   }
 }

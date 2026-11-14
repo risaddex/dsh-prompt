@@ -212,19 +212,20 @@ function groupG() {
 
 // ═══ H) i18n 运行时 ═══
 function groupH() {
-  const zh = (k) => i18n.tr('en', STR[k]);
+  // Fork: UI langs are en|pt (no zh chrome). Assert PT state-style copy + EN translation.
+  const pt = (k) => i18n.tr('pt', STR[k]);
   const en = (k) => i18n.tr('en', STR[k]);
-  eq(zh('triggerRowLabel'), '触发方式', 'H) zh 设置行文案=触发方式');
+  eq(pt('triggerRowLabel'), 'Modo de abertura', 'H) pt 设置行文案=Modo de abertura');
   // 旧键保留（只增不减）：组件已改走 triggerNow*/triggerTitle*，这里只验不断键
-  need(typeof zh('switchToClick') === 'string' && zh('switchToClick').length > 0, 'H) zh switchToClick 旧键保留');
-  need(typeof zh('switchToHover') === 'string' && zh('switchToHover').length > 0, 'H) zh switchToHover 旧键保留');
-  // 新键：状态式（m00001：裸「点击触发」四字分不清是状态还是动作，正文一律带「当前：」）
-  eq(zh('triggerNowHover'), '当前：悬浮触发', 'H) zh 悬浮态按钮正文=当前：悬浮触发（状态式）');
-  eq(zh('triggerNowClick'), '当前：点击触发', 'H) zh 点击态按钮正文=当前：点击触发');
-  eq(zh('triggerTitleHover'), '当前：悬浮触发，点击切换为点击触发', 'H) zh 悬浮态 title=状态+去向');
-  eq(zh('triggerTitleClick'), '当前：点击触发，点击切换为悬浮触发', 'H) zh 点击态 title=状态+去向');
-  need(/^当前：/.test(zh('triggerNowHover')) && /^当前：/.test(zh('triggerNowClick')), 'H) zh 按钮正文一律带「当前：」前缀（状态可辨）');
-  need(/点击切换为/.test(zh('triggerTitleHover')) && /点击切换为/.test(zh('triggerTitleClick')), 'H) zh title 必须带去向（点后切到哪）');
+  need(typeof pt('switchToClick') === 'string' && pt('switchToClick').length > 0, 'H) pt switchToClick 旧键保留');
+  need(typeof pt('switchToHover') === 'string' && pt('switchToHover').length > 0, 'H) pt switchToHover 旧键保留');
+  // 新键：状态式（EN/PT 都要能单看正文认出当前档；title 带去向）
+  need(typeof pt('triggerNowHover') === 'string' && pt('triggerNowHover').length > 0, 'H) pt triggerNowHover 非空');
+  need(typeof pt('triggerNowClick') === 'string' && pt('triggerNowClick').length > 0, 'H) pt triggerNowClick 非空');
+  need(typeof pt('triggerTitleHover') === 'string' && pt('triggerTitleHover').length > 0, 'H) pt triggerTitleHover 非空');
+  need(typeof pt('triggerTitleClick') === 'string' && pt('triggerTitleClick').length > 0, 'H) pt triggerTitleClick 非空');
+  need(pt('triggerNowHover') !== pt('triggerNowClick'), 'H) pt 两态正文必须不同');
+  need(pt('triggerTitleHover') !== pt('triggerTitleClick'), 'H) pt 两态 title 必须不同');
   need(typeof en('triggerRowLabel') === 'string' && en('triggerRowLabel').length > 0, 'H) en triggerRowLabel 非空');
   need(typeof en('switchToClick') === 'string' && en('switchToClick').length > 0, 'H) en switchToClick 旧键保留');
   need(typeof en('switchToHover') === 'string' && en('switchToHover').length > 0, 'H) en switchToHover 旧键保留');
@@ -233,7 +234,7 @@ function groupH() {
   need(typeof en('triggerTitleHover') === 'string' && en('triggerTitleHover').length > 0, 'H) en triggerTitleHover 非空');
   need(typeof en('triggerTitleClick') === 'string' && en('triggerTitleClick').length > 0, 'H) en triggerTitleClick 非空');
   need(!/[\u4e00-\u9fff]/.test(en('triggerRowLabel') + en('triggerNowHover') + en('triggerNowClick') + en('triggerTitleHover') + en('triggerTitleClick') + en('triggerHint')), 'H) en 文案不得含中文');
-  need(en('triggerNowHover') !== zh('triggerNowHover') && en('triggerNowClick') !== zh('triggerNowClick'), 'H) en 是真翻译，不是占位');
+  need(en('triggerNowHover') !== pt('triggerNowHover') && en('triggerNowClick') !== pt('triggerNowClick'), 'H) en 是真翻译，不是占位');
 }
 
 // ═══ I) 渲染：底栏触发钮两态 ═══
