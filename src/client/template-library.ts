@@ -480,8 +480,15 @@ export function stripCursorMarkers(body: string): { text: string; caret: number 
 /** 检索串（面板搜索与 /prompt 触发源共用）：名称/英文名/正文/领域/阶段/动作/标签（旧找法不断）
  *  #178 R2：正文先剥光标标记 —— 搜索不能把 {{cursor}} 当关键词命中。 */
 export function templateHaystack(t: PromptTemplate): string {
-  // Include nameEn + namePt so search matches the displayed locale name (Codex P2 on #1).
-  return (t.name + ' ' + (t.nameEn || '') + ' ' + (t.namePt || '') + ' ' + stripCursorMarkers(t.body || '').text + ' ' + (t.domain || '') + ' ' + (t.stage || '') + ' ' + (t.action || []).join(' ') + ' ' + templateLabels(t).join(' ')).toLowerCase()
+  // Include localized names + bodies so search matches what the user sees/inserts.
+  return (
+    t.name + ' ' + (t.nameEn || '') + ' ' + (t.namePt || '') + ' ' +
+    stripCursorMarkers(t.body || '').text + ' ' +
+    stripCursorMarkers(t.bodyEn || '').text + ' ' +
+    stripCursorMarkers(t.bodyPt || '').text + ' ' +
+    (t.domain || '') + ' ' + (t.stage || '') + ' ' + (t.action || []).join(' ') + ' ' +
+    templateLabels(t).join(' ')
+  ).toLowerCase()
 }
 
 /**

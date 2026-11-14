@@ -52,10 +52,16 @@ export function scoreCustomLabels(draft: string, tpl: PromptTemplate): ScoreResu
   if (labels.length === 0) return { score: 0, strong: [], weak: [] }
   const strong = labels.filter((l) => text.includes(l.toLowerCase()))
   const weak: string[] = []
-  const name = (tpl.name || '').trim()
-  if (name && text.includes(name.toLowerCase())) weak.push(name)
-  const body = stripCursorMarkers(tpl.body || '').text.trim()
-  if (body && text.includes(body.toLowerCase())) weak.push(body.slice(0, 12) + '…')
+  const names = [tpl.name, tpl.nameEn, tpl.namePt].map((s) => (s || '').trim()).filter(Boolean)
+  for (const name of names) {
+    if (text.includes(name.toLowerCase())) { weak.push(name); break }
+  }
+  const bodies = [tpl.body, tpl.bodyEn, tpl.bodyPt]
+    .map((s) => stripCursorMarkers(s || '').text.trim())
+    .filter(Boolean)
+  for (const body of bodies) {
+    if (text.includes(body.toLowerCase())) { weak.push(body.slice(0, 12) + '…'); break }
+  }
   return { score: strong.length * 2 + weak.length, strong, weak }
 }
 
