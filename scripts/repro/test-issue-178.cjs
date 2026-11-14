@@ -252,7 +252,7 @@ function clickButton(scope, label) {
 }
 
 function addButton(inst) {
-  return inst.root.findAll((n) => n.type === 'button' && n.props && n.props['data-dsh-prompt-chrome'] === 'plusGlyph' && n.props.title === STR.add.zh)[0]
+  return inst.root.findAll((n) => n.type === 'button' && n.props && n.props['data-dsh-prompt-chrome'] === 'plusGlyph' && n.props.title === STR.add.en)[0]
 }
 
 function modalMask(inst) {
@@ -282,7 +282,7 @@ function openAddModal(inst) {
 }
 
 function nameInput(mask) {
-  return mask.findAll((n) => n.type === 'input' && n.props && n.props.placeholder === STR.namePh.zh)[0]
+  return mask.findAll((n) => n.type === 'input' && n.props && n.props.placeholder === STR.namePh.en)[0]
 }
 
 function bodyTextarea(mask) {
@@ -298,13 +298,13 @@ function saveNew(inst, name, body) {
   const mask = openAddModal(inst)
   typeInto(nameInput(mask), name)
   typeInto(bodyTextarea(mask), body)
-  clickButton(mask, STR.addOk.zh)
+  clickButton(mask, STR.addOk.en)
 }
 
 function openEditModal(inst, id) {
   const row = rowById(inst, id)
   if (!row) throw new Error('找不到行: ' + id)
-  const editBtn = findButtonByText(row, STR.edit.zh)
+  const editBtn = findButtonByText(row, STR.edit.en)
   if (!editBtn) throw new Error('找不到编辑按钮: ' + id)
   TR.act(() => { editBtn.props.onClick({ stopPropagation() {}, preventDefault() {} }) })
   const mask = modalMask(inst)
@@ -466,7 +466,7 @@ function groupEWiring() {
   ok(tb.indexOf('oneLinePreview(tpl.body)') >= 0, 'E2.15 远程卡简介用 oneLinePreview')
   ok(tb.indexOf('trimBodyEdges(body)') >= 0, 'E2.16 保存路径调用 trimBodyEdges')
   ok(tb.indexOf("t('bodyHint')") >= 0, 'E2.17 模板弹窗渲染 bodyHint 提示行')
-  ok(!!STR.bodyHint && typeof STR.bodyHint.zh === 'string' && STR.bodyHint.zh.indexOf('{{cursor}}') >= 0, 'E2.18 bodyHint 中文提示提到 {{cursor}}')
+  ok(!!STR.bodyHint && typeof STR.bodyHint.en === 'string' && STR.bodyHint.en.indexOf('{{cursor}}') >= 0, 'E2.18 bodyHint 中文提示提到 {{cursor}}')
   ok(!!STR.bodyHint && typeof STR.bodyHint.en === 'string' && STR.bodyHint.en.indexOf('{{cursor}}') >= 0, 'E2.19 bodyHint 英文提示提到 {{cursor}}')
 }
 
@@ -917,7 +917,7 @@ async function groupD() {
       const beforeCount = store.allTemplates().length
       const mask = openEditModal(inst, t1.id)
       eq(bodyTextarea(mask) && bodyTextarea(mask).props.value, '\n开头', 'D8 重开编辑：正文框初值仍以换行开头')
-      clickButton(mask, STR.save.zh)
+      clickButton(mask, STR.save.en)
       eq(store.getTemplate(t1.id) && store.getTemplate(t1.id).body, '\n开头', 'D9 保存→重开→再存：开头换行值不变（幂等）')
       eq(store.allTemplates().length, beforeCount, 'D10 编辑保存不新增模板')
     }
@@ -925,7 +925,7 @@ async function groupD() {
     if (t2) {
       const mask = openEditModal(inst, t2.id)
       eq(bodyTextarea(mask) && bodyTextarea(mask).props.value, '结尾\n\n', 'D11 重开编辑：结尾换行初值保留')
-      clickButton(mask, STR.save.zh)
+      clickButton(mask, STR.save.en)
       eq(store.getTemplate(t2.id) && store.getTemplate(t2.id).body, '结尾\n\n', 'D12 结尾换行保存→重开→再存幂等')
     }
 
@@ -933,13 +933,13 @@ async function groupD() {
     const maskBig = openAddModal(inst)
     typeInto(nameInput(maskBig), 'TooLongFixture')
     typeInto(bodyTextarea(maskBig), 'a'.repeat(10001))
-    clickButton(modalMask(inst), STR.addOk.zh)
+    clickButton(modalMask(inst), STR.addOk.en)
     const maskErr = modalMask(inst)
     ok(!!maskErr, 'D13 超过 MAX_BODY 时弹窗保持打开（报错可见，不静默）')
-    if (maskErr) ok(textOf(maskErr).indexOf(STR.bodyTooLong.zh) >= 0, 'D14 报错文案 = bodyTooLong')
+    if (maskErr) ok(textOf(maskErr).indexOf(STR.bodyTooLong.en) >= 0, 'D14 报错文案 = bodyTooLong')
     eq(store.allTemplates().length, countBefore, 'D15 超上限不落库')
     eq(customsNamed('TooLongFixture').length, 0, 'D16 超上限不产生模板')
-    if (maskErr) clickButton(modalMask(inst), STR.cancel.zh)
+    if (maskErr) clickButton(modalMask(inst), STR.cancel.en)
 
     saveNew(inst, 'MaxBodyFixture', 'a'.repeat(10000))
     const t5 = customsNamed('MaxBodyFixture')[0]
@@ -947,8 +947,8 @@ async function groupD() {
     if (t5) eq(t5.body.length, 10000, 'D18 边界正文长度 10000 原样保留')
 
     const maskHint = openAddModal(inst)
-    ok(textOf(maskHint).indexOf(STR.bodyHint.zh) >= 0, 'D19 弹窗正文框下有 bodyHint 提示行')
-    clickButton(modalMask(inst), STR.cancel.zh)
+    ok(textOf(maskHint).indexOf(STR.bodyHint.en) >= 0, 'D19 弹窗正文框下有 bodyHint 提示行')
+    clickButton(modalMask(inst), STR.cancel.en)
   } finally {
     unmountBrowser(inst)
   }

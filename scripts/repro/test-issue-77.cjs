@@ -45,7 +45,7 @@ function ok(cond, msg) {
   failures++;
   console.log('  FAIL ' + msg);
 }
-const zh = (k) => tr('zh', STR[k]);
+const zh = (k) => tr('en', STR[k]);
 const rowsOf = (c) => c.root.findAll((n) => n.props && n.props['data-dsh-prompt-id'], { deep: true });
 const toggleOf = (c) => c.root.findAll((n) => n.props && n.props['data-dsh-prompt-templates-toggle'] !== undefined, { deep: true })[0];
 const searchOf = (c) => c.root.findAll((n) => n.type === 'input' && n.props.placeholder === zh('searchPh'), { deep: true });

@@ -68,7 +68,7 @@ try { if (store.saveHidePreset) store.saveHidePreset(false); } catch (e) {}
 // ═══ A) displayWord 纯函数 ═══
 eq(keys.displayWord('拆解', 'en'), 'Decompose', '预制词 en → 英译');
 eq(keys.displayWord('思考框架', 'en'), 'Thinking', '领域词 en → 英译');
-eq(keys.displayWord('拆解', 'zh'), '拆解', '预制词 zh → 原文（不翻）');
+eq(keys.displayWord('拆解', 'pt'), 'Decompor', '预制词 pt → Decompor');
 eq(keys.displayWord('观星', 'en'), '观星', '用户词 en → 原样（永不翻）');
 eq(keys.displayWord('Whatever', 'en'), 'Whatever', '表外词 en → 原样');
 eq(keys.isPresetWord('拆解'), true, 'isPresetWord：预制词');
@@ -93,14 +93,14 @@ eq(store.templateLabels(fp), ['思考框架', '执行前', '拆解'], 'templateL
 eq(store.labelString(fp), '思考框架/执行前/拆解', 'labelString 仍是中文身份');
 eq(store.matchLabel(fp, '拆解'), true, 'matchLabel 用中文身份命中');
 eq(keys.displayLabelString(fp, 'en'), 'Thinking/Before/Decompose', 'en 显示串走英译');
-eq(keys.displayLabelString(fp, 'zh'), '思考框架/执行前/拆解', 'zh 显示串保持中文');
+eq(keys.displayLabelString(fp, 'pt'), 'Pensamento/Antes/Decompor', 'pt 显示串走葡译');
 
 // ═══ D) 用户词与回落词 ═══
 const custom = store.addCustom('观星笔记', ['观星'], '正文首行');
 eq(keys.displayLabelString(custom, 'en'), '观星', '自定义模板的用户词 en 下原样');
 const noLabel = store.addCustom('无标签模板', [], '正文首行');
 eq(keys.displayLabelString(noLabel, 'en'), i18n.STR.labelFallback.en, '回落词仍跟随语言（#142 不回归）');
-eq(keys.displayLabelString(noLabel, 'zh'), i18n.STR.labelFallback.zh, '回落词 zh 仍是中文');
+eq(keys.displayLabelString(noLabel, 'pt'), i18n.STR.labelFallback.pt, '回落词 pt=Personalizado');
 
 // ═══ 渲染辅助 ═══
 function mountSettings(lang) {

@@ -57,11 +57,15 @@ export type Selection = { kind: 'scope'; key: ScopeKey } | { kind: 'word'; word:
 export const SCOPE_ALIASES: Readonly<Record<string, ScopeKey>> = {
   all: SCOPE_ALL,
   '全部': SCOPE_ALL,
+  todos: SCOPE_ALL,
   preset: SCOPE_PRESET,
   '预置': SCOPE_PRESET,
   '预制': SCOPE_PRESET,
+  'pré-definido': SCOPE_PRESET,
+  'pre-definido': SCOPE_PRESET,
   custom: SCOPE_CUSTOM,
   '自定义': SCOPE_CUSTOM,
+  personalizado: SCOPE_CUSTOM,
 }
 
 /** 读入形：非串 → ''；全角空格/不换行空格压半角 → trim（保大小写；大小写不敏感仅用于别名查表时的二次小写）。 */
@@ -192,16 +196,50 @@ export const PRESET_WORD_EN: Readonly<Record<string, string>> = {
   '重构': 'Refactor', '解读': 'Explain', '启动': 'Kickoff', '固化': 'Freeze', '记录': 'Log', '复盘': 'Retrospect',
 }
 
-/** 单个数据词的显示形：en 且命中预制词表 → 英文；其余（zh / 用户词 / 表外词）→ 原文原样。 */
-export function displayWord(word: string, lang: Lang): string {
-  if (lang !== 'en') return word
-  const hit = PRESET_WORD_EN[word]
-  return hit === undefined ? word : hit
+/** 预制词葡译表（fork）：与 PRESET_WORD_EN 同键，显示形用 pt-BR 短词。 */
+export const PRESET_WORD_PT: Readonly<Record<string, string>> = {
+  '思考框架': 'Pensamento', '学习': 'Aprendizado', '工程': 'Engenharia', '执行': 'Execução',
+  '执行前': 'Antes', '执行中': 'Durante', '执行后': 'Depois',
+  '拆解': 'Decompor', '检验': 'Verificar', '归因': 'Atribuição', '决策': 'Decidir', '理解': 'Entender',
+  '路线': 'Roteiro', '概念': 'Conceitos', '考验': 'Quiz', '审查': 'Revisar', '测试': 'Testar',
+  '重构': 'Refatorar', '解读': 'Explicar', '启动': 'Iniciar', '固化': 'Congelar', '记录': 'Registrar', '复盘': 'Retrospectiva',
 }
 
-/** 是否预制词（云行/标签选择格据此决定要不要走英译，也便于门禁自证）。 */
+/** 单个数据词的显示形：en/pt 命中预制词表 → 对应译；用户词 / 表外词 → 原文原样。 */
+export function displayWord(word: string, lang: Lang): string {
+  switch (lang) {
+    case 'pt': {
+      const hit = PRESET_WORD_PT[word]
+      return hit === undefined ? word : hit
+    }
+    case 'en': {
+      const hit = PRESET_WORD_EN[word]
+      return hit === undefined ? word : hit
+    }
+    default: {
+      const _exhaustive: never = lang
+      return _exhaustive
+    }
+  }
+}
+
+/** 是否预制词（云行/标签选择格据此决定要不要走译表，也便于门禁自证）。 */
 export function isPresetWord(word: string): boolean {
   return Object.prototype.hasOwnProperty.call(PRESET_WORD_EN, word)
+}
+
+/**
+ * 模板名显示形（fork）：预制走 nameEn / namePt；自定义永远用用户原文 name。
+ * 逻辑位（搜索/评分/落盘）继续用原字段，本函数只服务展示。
+ */
+export function displayTemplateName(t: PromptTemplate, lang: Lang): string {
+  if (!t || !t.builtin) return (t && t.name) || ''
+  if (lang === 'pt') {
+    const pt = (t as PromptTemplate & { namePt?: string }).namePt
+    if (typeof pt === 'string' && pt.trim()) return pt
+  }
+  if (typeof t.nameEn === 'string' && t.nameEn.trim()) return t.nameEn
+  return t.name || ''
 }
 
 /**

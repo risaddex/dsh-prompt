@@ -107,7 +107,7 @@ const owner = req('style-ownership');
 const React = require('react');
 const TR = require('react-test-renderer');
 const STR = i18n.STR;
-const zh = (k) => i18n.tr('zh', STR[k]);
+const zh = (k) => i18n.tr('en', STR[k]);
 
 // ═══ A) 静态接线 ═══
 function groupA() {

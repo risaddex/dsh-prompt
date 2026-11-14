@@ -212,7 +212,7 @@ function groupG() {
 
 // ═══ H) i18n 运行时 ═══
 function groupH() {
-  const zh = (k) => i18n.tr('zh', STR[k]);
+  const zh = (k) => i18n.tr('en', STR[k]);
   const en = (k) => i18n.tr('en', STR[k]);
   eq(zh('triggerRowLabel'), '触发方式', 'H) zh 设置行文案=触发方式');
   // 旧键保留（只增不减）：组件已改走 triggerNow*/triggerTitle*，这里只验不断键

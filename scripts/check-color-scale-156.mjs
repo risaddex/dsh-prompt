@@ -122,7 +122,7 @@ function installFetch() {
   };
 }
 
-installDom('zh-CN');
+installDom('en-US');
 buildFlat(TMP_DIR, [SRC('label-identity.ts'), SRC('strings.ts'), SRC('template-library.ts'), SRC('template-browser.ts'), SRC('smart-card.ts'), SRC('remote-mode.ts'), SRC('smart-draft.ts')]);
 const req = (n) => require(path.join(TMP_DIR, n + '.cjs'));
 const panel = req('template-browser');

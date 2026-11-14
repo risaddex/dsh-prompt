@@ -40,7 +40,7 @@ import { tr, STR, type Lang } from './strings'
 import {
   SCOPE_ALL, SCOPE_PRESET, SCOPE_CUSTOM, isExcludedLabel,
   scopeSelection, selectionActive, toggleScope, toggleWord, wordActive, isNoFilter, type Selection,
-  displayLabelString, displayWord,
+  displayLabelString, displayWord, displayTemplateName,
 } from './label-identity'
 import { resolveLocale, subscribeLocale } from './locale'
 import { setSmartInput } from './smart-draft'
@@ -1372,7 +1372,7 @@ function ConfirmDelete(props: any): any {
   return h('div', { style: modalMaskStyle, 'data-dsh-prompt-modal': '', 'data-dsh-prompt-modal-kind': 'delete-confirm', onClick: (e: any) => { if (e.target === e.currentTarget) props.onCancel() } }, [
     h('div', { style: cardStyleScaled }, [
       h('h3', { style: { fontSize: '1.08em', margin: 0 } }, props.t('delTitle')),
-      h('div', { style: { fontSize: '0.96em', color: 'var(--dsw-alias-label-tertiary)' } }, [props.t('delMsg'), h('span', { 'data-dsh-prompt-chrome': 'nameQuote' }, props.t('nameQuote').replace('{name}', props.tpl.name)), props.t('delUnrecover')]),
+      h('div', { style: { fontSize: '0.96em', color: 'var(--dsw-alias-label-tertiary)' } }, [props.t('delMsg'), h('span', { 'data-dsh-prompt-chrome': 'nameQuote' }, props.t('nameQuote').replace('{name}', displayTemplateName(props.tpl, (props as any).lang || 'en'))), props.t('delUnrecover')]),
       h('div', { style: modalBtnsStyle }, [
         h('button', { style: modalBtn(), onClick: props.onCancel }, props.t('cancel')),
         h('button', { style: modalBtn(false, true), onClick: props.onOk }, props.t('delOk')),
@@ -2142,7 +2142,7 @@ export function TemplateBrowser(props: BrowserProps): any {
           // #176：横向同理 —— 名字自身的裁切盒补 2px 横向内边距 + 同量负 margin（文字不位移、外框尺寸不变），
           // 否则首字左缘那 1px 环被裁掉。补 2px 而不是 1px：环宽 1px，1px 恰好等于环宽时环的外缘正压裁切线，
           // 子像素栅格化下 AA 外溢会被削掉一截（实测拉丁首名 @150% 只保住 50%）。依据：research/ink-ring-horizontal-clip/findings.md。
-          h('span', { style: { ...remoteCardTitle, flex: 'none', minWidth: 0, ...(ink ? { color: ink, paddingBlock: 2, marginBlock: -2, paddingInline: 2, marginInline: -2 } : {}) }, ...(tint ? { [INK_TINT_ATTR]: '' } : {}) }, tpl.name),
+          h('span', { style: { ...remoteCardTitle, flex: 'none', minWidth: 0, ...(ink ? { color: ink, paddingBlock: 2, marginBlock: -2, paddingInline: 2, marginInline: -2 } : {}) }, ...(tint ? { [INK_TINT_ATTR]: '' } : {}) }, displayTemplateName(tpl, lang)),
           h('span', { style: remoteCardIntro }, intro),
         ]),
         h('span', { style: remoteCardFoot }, [
@@ -2377,7 +2377,7 @@ export function TemplateBrowser(props: BrowserProps): any {
         // （实测拉丁首名 @150% 只保住 50%）；2px 留 1px 富余后各档各主题均 100%。
         // 依据：research/ink-ring-horizontal-clip/findings.md（修前 100% 缩放保留 0%、175% 保留 52% ⇒ 修后各档 100%）。
         h('span', { style: { flex: 1, minWidth: 0, display: 'flex', alignItems: 'baseline', gap: 6, overflow: 'hidden', ...(ink ? { paddingBlock: 2, marginBlock: -2, paddingInline: 2, marginInline: -2 } : {}) } }, [
-          h('span', { style: { flex: 'none', fontSize: '0.95em', color: ink || base, fontWeight: 600, whiteSpace: 'nowrap' }, ...(tint ? { [INK_TINT_ATTR]: '' } : {}) }, x.name),
+          h('span', { style: { flex: 'none', fontSize: '0.95em', color: ink || base, fontWeight: 600, whiteSpace: 'nowrap' }, ...(tint ? { [INK_TINT_ATTR]: '' } : {}) }, displayTemplateName(x, lang)),
           h('span', { style: { flex: '0 1 auto', minWidth: 0, fontSize: '0.8em', color: muted, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }, ...(templateLabels(x).indexOf(LABEL_FALLBACK) >= 0 ? { 'data-dsh-prompt-chrome': 'labelFallback' } : {}) }, displayLabelString(x, lang)),
           h('span', { style: { flex: '1 1 auto', minWidth: 0, fontSize: '0.85em', color: dim, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' } }, intro),
         ]),
@@ -2406,7 +2406,7 @@ export function TemplateBrowser(props: BrowserProps): any {
         // #176：横向同理，两处裁切盒都要补 2px 横向余量（内边距 + 同量负 margin ⇒ 文字不位移、外框不变）。
         h('div', { style: { display: 'flex', alignItems: 'center', gap: 6, minWidth: 0, overflow: 'hidden', ...(ink ? { paddingBlock: 2, marginBlock: -2, paddingInline: 2, marginInline: -2 } : {}) } }, [
           h('span', { style: { flex: 'none', fontSize: '0.75em', color: dim, width: '1.2em', textAlign: 'center', lineHeight: 1 }, 'aria-hidden': 'true' }, expanded.has(x.id) ? '▾' : '▸'),
-          h('span', { style: ink ? { ...nmStyle, color: ink, paddingBlock: 2, marginBlock: -2, paddingInline: 2, marginInline: -2 } : nmStyle, ...(tint ? { [INK_TINT_ATTR]: '' } : {}) }, x.name),
+          h('span', { style: ink ? { ...nmStyle, color: ink, paddingBlock: 2, marginBlock: -2, paddingInline: 2, marginInline: -2 } : nmStyle, ...(tint ? { [INK_TINT_ATTR]: '' } : {}) }, displayTemplateName(x, lang)),
           h('span', { style: tagStyle, ...(templateLabels(x).indexOf(LABEL_FALLBACK) >= 0 ? { 'data-dsh-prompt-chrome': 'labelFallback' } : {}) }, displayLabelString(x, lang)),
         ]),
         expanded.has(x.id) ? h('span', { style: subStyle }, oneLinePreview(x.body).slice(0, 44) + '…') : null,

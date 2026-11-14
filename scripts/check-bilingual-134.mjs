@@ -1,23 +1,25 @@
 // 永久门禁 #138（父图 #134）：字典完备 + 英文铬无 CJK + 溢出预算 + --snap 对点底稿
+// fork：STR 键为 en/pt（English default + Portuguese option）；不再要求 zh/CJK。
 // 跑法：node scripts/check-bilingual-134.mjs（门禁三组 A/B/C，exit 0 = 全绿）
 //       node scripts/check-bilingual-134.mjs --snap <outdir>（先跑门禁，绿了才落 4 份 en 静态 HTML，给 #139 真机验收做对点底稿）
 //       snap 仅 4 面底稿（panel/settings/picker/remote；smart/sheet 以门禁 B 组为准，不落静态）
 // 口径（seam 级，不断实现细节）：
-//  A) 字典完备：STR 逐键 zh/en 非空；en 零 CJK（零例外）；zh 须含 CJK（例外仅品牌词 panelTitle/entryBtn）；
+//  A) 字典完备：STR 逐键 en/pt 非空；en 零 CJK（零例外）；pt 可为拉丁文（不要求 CJK）；
+//     品牌词 panelTitle/entryBtn/langEn 允许跨语种同文；
 //     另同步调 node research/i18n-audit/scan.mjs --check（exit 0 = 每条 CJK 字面量都有归类，源码级完备）。
-//  B) 英文铬无 CJK：7 面（悬浮 compact / 设置列表 / 设置页 / 挑选器 / 智能卡 / 遥控镜 / 远程大列表）在 lang=en 下渲染，
+//  B) 英文铬无 CJK：7 面在 lang=en（偏好钉 en）下渲染，
 //     所有 data-dsh-prompt-chrome 节点（含子树文本）+ title/aria-label/placeholder/alt 四属性逐条无 CJK
 //     （模板名/标签/正文是数据词，先剔除）；P1 铬 13 行逐个找得到（12 chrome 键 + close 行为钩子 + scope 三钮身份）。
-//  C) 溢出预算（静态，见下方预算依据）：P1 十二键 en 文案按 pill / badge / hint 三档封顶 + 全局 en/zh 比上限。
+//  C) 溢出预算（静态，见下方预算依据）：P1 十二键 en 文案按 pill / badge / hint 三档封顶 + 全局 en/pt 比上限。
 //
 // ── C 组预算依据（人审过；改数字必须同步改这段话，否则后人不知道松紧从哪来） ──
-//  PILL_MAX = 10：范围三钮 / 翻页 / 关闭是固定 pill 宽度（中文 2–3 字约 4–6em；英文按 0.55em/字符折，
-//    10 字符约等于中文 3 字宽）。超限 → pill 换行挤占云行。现状最大 Previous=8，余量 2。
+//  PILL_MAX = 10：范围三钮 / 翻页 / 关闭是固定 pill 宽度（英文按 0.55em/字符折，
+//    10 字符约等于短 pill）。超限 → pill 换行挤占云行。现状最大 Previous=8，余量 2。
 //  BADGE_MAX = 16（占位按 {n}=88、{p}=100 展开后量）：行内用量徽标 / 智能后缀 / 档位 pill / 字数镜是行尾小字
-//    nowrap，中文原形 ≤9 字，英文膨胀按 1.8× 封顶 16。超限 → 行被撑出横向滚动。现状最大 Used 88 times=13，余量 3。
-//  HINT_MAX = 45：title 气泡无布局压力，但 DSH 侧栏窄窗下超长英文出横向滚动条；按中文 9 字 ×5 封顶。
+//    nowrap，英文膨胀封顶 16。超限 → 行被撑出横向滚动。现状最大 Used 88 times=13，余量 3。
+//  HINT_MAX = 45：title 气泡无布局压力，但 DSH 侧栏窄窗下超长英文出横向滚动条。
 //    现状 rowExpandHint=39，余量 6。
-//  RATIO_MAX = 5.0：P1 任一条展开后 en/zh 字符数比 ≤5，防英文写成句子。现状最大 4.33（rowExpandHint）。
+//  RATIO_MAX = 5.0：P1 任一条展开后 en/pt 字符数比 ≤5（取 max(en,pt)/min），防一侧写成句子。
 //  WHITELIST：当前无例外；将来某条真超预算时在此登记 {cap, reason}（登记即按登记值判，判空分支是活代码）。
 //  空即无例外，判空分支为未来登记留的活代码。
 import { createRequire } from 'node:module';
@@ -75,11 +77,12 @@ function installDom(lang) {
   globalThis.MutationObserver = class { constructor() {} observe() {} disconnect() {} takeRecords() { return []; } };
   return docEl;
 }
-installDom('zh-CN');
+installDom('en-US');
 
 // 宿主写桥一律成功（同 #141 口径）：store 快照跟随当前远程偏好，否则面分支漂移
-buildFlat(DIR, [SRC('label-identity.ts'), SRC('strings.ts'), SRC('template-library.ts'), SRC('template-browser.ts'), SRC('settings-page.ts'), SRC('smart-card.ts'), SRC('remote-mode.ts'), SRC('smart-draft.ts'), SRC('remote-sheet.ts'), SRC('workspace-picker.ts')]);
+buildFlat(DIR, [SRC('locale.ts'), SRC('label-identity.ts'), SRC('strings.ts'), SRC('template-library.ts'), SRC('template-browser.ts'), SRC('settings-page.ts'), SRC('smart-card.ts'), SRC('remote-mode.ts'), SRC('smart-draft.ts'), SRC('remote-sheet.ts'), SRC('workspace-picker.ts')]);
 const req = (n) => require(path.join(DIR, n + '.cjs'));
+const locale = req('locale');
 const i18n = req('strings');
 const store = req('template-library');
 const panel = req('template-browser');
@@ -90,6 +93,8 @@ const smartstore = req('smart-draft');
 const sheetMod = req('remote-sheet');
 const pickerMod = req('workspace-picker');
 const STR = i18n.STR;
+// 门禁钉英文 UI（产品默认已是 en；显式再钉一次防段间污染）
+if (typeof locale.setUiLangPreference === 'function') locale.setUiLangPreference('en');
 // #165：宿主快照桩的 hidePreset 位（门禁显式置位；与 lib/index.js snapshot 同口径，缺键归一 true）。
 let stubHide = false;
 function installFetch() {
@@ -105,28 +110,33 @@ const React = require('react');
 const TR = require('react-test-renderer');
 
 // ═══ A) 字典完备（静态：不渲染，只看词表 + 扫描器） ═══
+const BRAND_EQUAL_OK = new Set(['panelTitle', 'entryBtn', 'langEn']);
 function groupA() {
   const keys = Object.keys(STR);
   if (keys.length < DICT_FLOOR) fail('A) STR 键数 ' + keys.length + ' 跌破下限 ' + DICT_FLOOR + '（误删整段？真删键先改 DICT_FLOOR 并说明）');
   const missing = P1_KEYS.filter((k) => !Object.prototype.hasOwnProperty.call(STR, k));
   if (missing.length) fail('A) P1 键缺失：' + missing.join('/'));
-  const emptyZh = keys.filter((k) => typeof STR[k].zh !== 'string' || STR[k].zh.trim().length === 0);
   const emptyEn = keys.filter((k) => typeof STR[k].en !== 'string' || STR[k].en.trim().length === 0);
-  if (emptyZh.length) fail('A) zh 为空：' + emptyZh.join('/'));
+  const emptyPt = keys.filter((k) => typeof STR[k].pt !== 'string' || STR[k].pt.trim().length === 0);
   if (emptyEn.length) fail('A) en 为空：' + emptyEn.join('/'));
+  if (emptyPt.length) fail('A) pt 为空：' + emptyPt.join('/'));
   const enCJK = keys.filter((k) => CJK.test(STR[k].en));
-  eq(JSON.stringify(enCJK), '[]', 'A) en 值零 CJK（零例外，141 后 labelReserved 已删）');
-  const zhPlain = keys.filter((k) => !CJK.test(STR[k].zh)).sort();
-  eq(zhPlain.join('/'), 'entryBtn/panelTitle', 'A) zh 无 CJK 的只有品牌词 panelTitle/entryBtn（值 Prompt）');
+  eq(JSON.stringify(enCJK), '[]', 'A) en 值零 CJK（零例外）');
+  const ptCJK = keys.filter((k) => CJK.test(STR[k].pt));
+  eq(JSON.stringify(ptCJK), '[]', 'A) pt 值零 CJK（葡文铬；不要求也不允许 CJK）');
+  // 品牌词允许跨语种同文；其余键不强求不同（有些短词可能巧合相同）
+  for (const k of BRAND_EQUAL_OK) {
+    if (!STR[k]) fail('A) 品牌键缺失：' + k);
+  }
   try {
     const out = execFileSync('node', [path.join(ROOT, 'research', 'i18n-audit', 'scan.mjs'), '--check'], { cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
     const tail = String(out).trim().split('\n').slice(-2).join(' / ');
     if (!/check OK/.test(String(out))) fail('A) scan --check 没报 check OK：' + tail);
     else console.log('      scan --check：' + tail);
   } catch (e) {
-    fail('A) scan.mjs --check exit 非 0（有未归类 CJK 字面量）：' + ((e && e.stdout) || (e && e.message) || e));
+    fail('A) scan.mjs --check exit 非 0（有未归类 CJK 字面量）：' + ((e && e.stdout) || (e && e.stderr) || (e && e.message) || e));
   }
-  if (failures === 0) ok('A) 字典完备：' + keys.length + ' 键 zh/en 非空、en 零 CJK、scan --check 绿');
+  if (failures === 0) ok('A) 字典完备：' + keys.length + ' 键 en/pt 非空、en/pt 零 CJK、scan --check 绿');
 }
 
 // ── B/C 共用：en 七面渲染 + 钩子收集 ──
@@ -195,9 +205,10 @@ async function renderFaces() {
 async function openDelModal(docEl) {
   let tree;
   TR.act(() => { tree = TR.create(React.createElement(panel.TemplateBrowser, { compact: false })); });
-  const want = STR.del[docEl.lang.indexOf('en') === 0 ? 'en' : 'zh'];
+  const lang = String(docEl.lang || '').toLowerCase().indexOf('pt') === 0 ? 'pt' : 'en';
+  const want = STR.del[lang];
   const rowDel = tree.root.findAll((n) => n.type === 'button' && (n.children || []).filter((c) => typeof c === 'string').join('') === want)[0];
-  if (!rowDel) { fail('找不到行内删除键（lang=' + docEl.lang + '）'); return tree; }
+  if (!rowDel) { fail('找不到行内删除键（lang=' + docEl.lang + ' want=' + want + '）'); return tree; }
   TR.act(() => { rowDel.props.onClick({ stopPropagation() {} }); });
   TR.act(() => {});
   return tree;
@@ -205,6 +216,7 @@ async function openDelModal(docEl) {
 
 // ═══ B) 英文铬无 CJK（含属性）+ P1 钩子完备 ═══
 async function groupB() {
+  if (typeof locale.setUiLangPreference === 'function') locale.setUiLangPreference('en');
   const cust = store.addCustom('EnFixture', ['EnLabel'], 'en fixture body');
   // 数据词表（C3 内容资产 + 本次夹具）：钩子子树里的数据词先剔除再判，判的是铬不是数据
   const dataWords = (() => {
@@ -319,21 +331,22 @@ function groupC() {
   const len = (s) => [...expand(s)].length;
   for (const k of P1_KEYS) {
     if (!STR[k]) { fail('C) P1 键缺失：' + k); continue; }
-    const e = STR[k].en, z = expand(STR[k].zh);
+    const e = STR[k].en, p = expand(STR[k].pt);
     const wl = WHITELIST[k];
     if (wl) { console.log('      白名单：' + k + '（' + wl.reason + '，cap=' + wl.cap + '）'); continue; }
     if (P1_PILL.includes(k) && len(e) > PILL_MAX) fail('C) pill 超预算：' + k + ' en=' + JSON.stringify(e) + ' 长 ' + len(e) + ' > ' + PILL_MAX);
     if (P1_BADGE.includes(k) && len(e) > BADGE_MAX) fail('C) badge 超预算：' + k + ' en=' + JSON.stringify(expand(e)) + ' 长 ' + len(e) + ' > ' + BADGE_MAX);
     if (P1_HINT.includes(k) && len(e) > HINT_MAX) fail('C) hint 超预算：' + k + ' en 长 ' + len(e) + ' > ' + HINT_MAX);
-    const ratio = len(e) / Math.max(1, [...z].length);
-    if (ratio > RATIO_MAX) fail('C) en/zh 比超限：' + k + ' 比 ' + ratio.toFixed(2) + ' > ' + RATIO_MAX);
+    const le = len(e), lp = Math.max(1, [...p].length);
+    const ratio = Math.max(le, lp) / Math.min(le, lp);
+    if (ratio > RATIO_MAX) fail('C) en/pt 比超限：' + k + ' 比 ' + ratio.toFixed(2) + ' > ' + RATIO_MAX);
   }
   // 预算本身有效性（防恒真式断言：上限必须真卡得住东西 —— 现状最大值离上限不足 40% 即告警压缩余量）
   const pillMax = Math.max(...P1_PILL.map((k) => STR[k] ? len(STR[k].en) : 0));
   const badgeMax = Math.max(...P1_BADGE.map((k) => STR[k] ? len(STR[k].en) : 0));
   if (!(pillMax > PILL_MAX - 4)) fail('C) pill 预算松了：现状最大 ' + pillMax + '，上限 ' + PILL_MAX + '（余量超 3，请收紧）');
   if (!(badgeMax > BADGE_MAX - 5)) fail('C) badge 预算松了：现状最大 ' + badgeMax + '，上限 ' + BADGE_MAX + '（余量超 4，请收紧）');
-  if (failures === 0) ok('C) 溢出预算：pill≤' + PILL_MAX + '（现状' + pillMax + '） badge≤' + BADGE_MAX + '（现状' + badgeMax + '） hint≤' + HINT_MAX + ' 比≤' + RATIO_MAX.toFixed(1));
+  if (failures === 0) ok('C) 溢出预算：pill≤' + PILL_MAX + '（现状' + pillMax + '） badge≤' + BADGE_MAX + '（现状' + badgeMax + '） hint≤' + HINT_MAX + ' en/pt比≤' + RATIO_MAX.toFixed(1));
 }
 
 // ── 序列化（snap 用：约 40 行的简易 HTML 化；host 名 + 文本转义 + style 转 CSS + 保留 title/aria-*/placeholder/alt/data-*/lang/role） ──

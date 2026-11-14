@@ -80,15 +80,16 @@ installFetch(remoteMod);
 // ═══ A) 词表：labelFallback 与 copySuffix ═══
 {
   eq(typeof STR.labelFallback, 'object', 'STR.labelFallback 存在');
-  eq(STR.labelFallback && STR.labelFallback.zh, '自定义', 'labelFallback.zh=自定义');
+  eq(STR.labelFallback && STR.labelFallback.pt, 'Personalizado', 'labelFallback.pt=Personalizado');
   eq(STR.labelFallback && STR.labelFallback.en, 'Custom', 'labelFallback.en=Custom');
   // en 与 tabCustom 同字不同键（141 presetCount/scopePreset 先例：钩子分开定位）
   eq(STR.tabCustom.en, 'Custom', 'tabCustom.en 仍是 Custom（对照）');
   eq(('labelFallback' in STR) && ('tabCustom' in STR) && ('customCount' in STR), true, 'labelFallback/tabCustom/customCount 三键并存（不复用）');
   eq(typeof STR.copySuffix, 'object', 'STR.copySuffix 存在');
-  eq(STR.copySuffix && STR.copySuffix.zh, '（副本）', 'copySuffix.zh=（副本）');
+  eq(STR.copySuffix && STR.copySuffix.en, ' (copy)', 'copySuffix.en= (copy)');
+  eq(STR.copySuffix && STR.copySuffix.pt, ' (cópia)', 'copySuffix.pt= (cópia)');
   eq(CJK.test((STR.copySuffix || {}).en || ''), false, 'copySuffix.en 零 CJK');
-  eq(CJK.test((STR.copySuffix || {}).zh || ''), true, 'copySuffix.zh 含 CJK（非品牌词）');
+  eq(CJK.test((STR.copySuffix || {}).pt || ''), false, 'copySuffix.pt 零 CJK');
   if (failures === 0) ok('A) 词表：labelFallback + copySuffix（同字不同键）');
 }
 
@@ -99,12 +100,12 @@ installFetch(remoteMod);
   const emptyT = { id: 'x', name: '空', body: 'b', builtin: false, labels: [], createdAt: 1 };
   eq(JSON.stringify(store.templateLabels(emptyT)), '["自定义"]', 'templateLabels 本体仍回落自定义（逻辑不动）');
   if (typeof keys.displayLabelString === 'function') {
-    eq(keys.displayLabelString(emptyT, 'zh'), '自定义', 'zh 回落显示=自定义');
+    eq(keys.displayLabelString(emptyT, 'pt'), 'Personalizado', 'pt 回落显示=Personalizado');
     eq(keys.displayLabelString(emptyT, 'en'), 'Custom', 'en 回落显示=Custom');
     // 其余段：预制词跟语言（#145），用户词原文（大小写不动）
     const mixed = { id: 'y', name: '混', body: 'b', builtin: false, labels: ['拆解', '自定义', 'MyWord'], createdAt: 1 };
     eq(keys.displayLabelString(mixed, 'en'), 'Decompose/Custom/MyWord', 'en 混合串：回落段与预制词跟语言、用户词保大小写原文');
-    eq(keys.displayLabelString(mixed, 'zh'), '拆解/自定义/MyWord', 'zh 混合串原文');
+    eq(keys.displayLabelString(mixed, 'pt'), 'Decompor/Personalizado/MyWord', 'pt 混合串：预制+回落跟语言');
     eq(keys.displayLabelString(mixed, 'en', '|'), 'Decompose|Custom|MyWord', 'sep 参数透传');
     // 用户自造大小写词不动
     const cw = { id: 'z', name: 'c', body: 'b', builtin: false, labels: ['custom'], createdAt: 1 };
@@ -209,8 +210,9 @@ function findFallbackHooks(inst) {
   for (const t of [compactTree, settingsTree, smartTree]) { try { t.unmount(); } catch (e) {} }
   smartstore.setSmartInput({ draft: '' });
 
-  // —— zh 渲染：仍是自定义 ——
-  installDom('zh-CN');
+  // —— pt 渲染：回落词显示 Personalizado（存储身份仍是「自定义」）——
+  installDom('pt-BR');
+  try { require(path.join(DIR, 'locale.cjs')).setUiLangPreference('pt'); } catch (e) {}
   remoteMod.__resetRemoteForTests();
   remoteMod.setRemoteEnabled(false);
   installFetch(remoteMod);
@@ -219,18 +221,13 @@ function findFallbackHooks(inst) {
   await TR.act(async () => { await new Promise((r) => setTimeout(r, 0)); });
   await TR.act(async () => { sTree2 = TR.create(React.createElement(panel.TemplateBrowser, { compact: false })); });
   await TR.act(async () => { await new Promise((r) => setTimeout(r, 0)); });
-  const zhJson = JSON.stringify(cTree2.toJSON()) + JSON.stringify(sTree2.toJSON());
-  eq(zhJson.indexOf('自定义') >= 0, true, 'zh 渲染仍是自定义');
-  // zh 下 display 与改前逐字等价（displayLabelString === labelString）
-  let zhEqual = true;
-  for (const t of store.allTemplates()) {
-    if (keys.displayLabelString(t, 'zh') !== store.labelString(t)) { zhEqual = false; break; }
-  }
-  eq(zhEqual, true, 'zh 下 display 与 labelString 逐字等价（过滤/展示改前一致）');
-  const candsZh = await triggerMod.buildPromptSource().candidates(null, { query: 'prompt', position: '' });
-  const descZh = (candsZh.find((c) => c.templateId === cEmpty.id) || {}).description || '';
-  eq(descZh.indexOf('自定义') === 0, true, 'zh /prompt 描述以自定义开头');
+  const ptJson = JSON.stringify(cTree2.toJSON()) + JSON.stringify(sTree2.toJSON());
+  eq(ptJson.indexOf('Personalizado') >= 0, true, 'pt 渲染显示 Personalizado');
+  // 存储身份串仍是中文；display 跟语言
+  eq(keys.displayLabelString(store.getTemplate(cEmpty.id), 'pt'), 'Personalizado', 'pt 下空标签显示=Personalizado');
+  eq(store.labelString(store.getTemplate(cEmpty.id)), '自定义', 'labelString 存储身份仍是自定义');
   for (const t of [cTree2, sTree2]) { try { t.unmount(); } catch (e) {} }
+  try { require(path.join(DIR, 'locale.cjs')).setUiLangPreference('en'); } catch (e) {}
 
   // ═══ E) 落盘与比较不动 ═══
   {
@@ -259,15 +256,15 @@ function findFallbackHooks(inst) {
     const enSuffix = i18n.tr('en', STR.copySuffix);
     const cEn = store.copyPresetToCustom('fp', enSuffix);
     eq(cEn && cEn.name.endsWith(enSuffix), true, 'en 新建副本后缀按当前语言（实得 ' + (cEn && cEn.name) + '）');
-    installDom('zh-CN');
-    const zhSuffix = i18n.tr('zh', STR.copySuffix);
-    const cZh = store.copyPresetToCustom('fp', zhSuffix);
-    eq(cZh && cZh.name.endsWith(zhSuffix), true, 'zh 新建副本后缀是（副本）');
+    installDom('pt-BR');
+    const ptSuffix = i18n.tr('pt', STR.copySuffix);
+    const cPt = store.copyPresetToCustom('fp', ptSuffix);
+    eq(cPt && cPt.name.endsWith(ptSuffix), true, 'pt 新建副本后缀按当前语言');
     // 已存永不改写：切语言后旧名不动
     installDom('en-US');
-    eq(store.getTemplate(cZh.id).name.endsWith('（副本）'), true, '已存 zh 副本切 en 后仍是（副本）（永不改写）');
+    eq(store.getTemplate(cPt.id).name.endsWith(ptSuffix), true, '已存 pt 副本切 en 后仍是原后缀（永不改写）');
     try { store.removeCustom(cEn.id); } catch (e) {}
-    try { store.removeCustom(cZh.id); } catch (e) {}
+    try { store.removeCustom(cPt.id); } catch (e) {}
   }
 
   // ═══ G) 取值位不动（静态）：选择器/云/评分/过滤仍走原值 ═══

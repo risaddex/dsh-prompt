@@ -29,7 +29,7 @@ const TR = require('react-test-renderer');
 const panel = require(path.join(DIR, 'template-browser.cjs'));
 const state = require(path.join(DIR, 'panel-visibility.cjs'));
 const { tr, STR } = require(path.join(DIR, 'strings.cjs'));
-const zh = (k) => tr('zh', STR[k]);
+const zh = (k) => tr('en', STR[k]);
 
 function mountHost() {
   function Host() {

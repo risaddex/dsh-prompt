@@ -31,13 +31,19 @@ const ISSUES_URL = REPO_URL + '/issues'
 let baseUIReact: any = null
 let baseUILang: Lang | undefined
 let baseUICache: any = null
+/** base 包只认 zh|en；本 fork 的 pt 映射到 en（避免把中文塞进页头三件套）。 */
+function baseLang(lang?: Lang): 'zh' | 'en' {
+  return lang === 'pt' || lang === 'en' ? 'en' : 'en'
+}
+
 function baseUI(lang?: Lang): any {
   const react = getReact()
   if (!react) return null
+  const bl = baseLang(lang)
   if (!baseUICache || baseUIReact !== react || baseUILang !== lang) {
     baseUIReact = react
     baseUILang = lang
-    baseUICache = createBaseUI(react, { lang, selfId: 'prompt', repoUrl: REPO_URL, issuesUrl: ISSUES_URL })
+    baseUICache = createBaseUI(react, { lang: bl, selfId: 'prompt', repoUrl: REPO_URL, issuesUrl: ISSUES_URL })
   }
   return baseUICache
 }
@@ -95,5 +101,5 @@ export function AuthorPlugins(props: { lang: Lang }): any {
   const ui = baseUI(props.lang)
   if (!react || !ui) return null
   ensureBaseStylesOnce()
-  return react.createElement(ui.AuthorPlugins, { lang: props.lang })
+  return react.createElement(ui.AuthorPlugins, { lang: baseLang(props.lang) })
 }

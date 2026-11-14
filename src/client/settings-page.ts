@@ -27,8 +27,8 @@ import {
 import { remoteSizeScale, resolveEffectiveOrientation, deriveRemoteOrientation, scaledBaseFontSize } from './remote-grid'
 import { setSystemOrientation, getSystemOrientation, isSystemOrientation } from './system-orientation'
 import { tr, STR } from './strings'
-import { resolveLocale, subscribeLocale } from './locale'
-import { loadHidePreset, saveHidePreset, loadHoverTrigger, subscribeStore } from './template-library'
+import { resolveLocale, subscribeLocale, type Lang } from './locale'
+import { loadHidePreset, saveHidePreset, loadHoverTrigger, loadUiLang, saveUiLang, subscribeStore } from './template-library'
 
 /** 取日志能力（装在槽里的那个实例）；能力缺席时返回 null，界面据此走「不可用」分支，不静默。 */
 function logCap(): any {
@@ -169,6 +169,43 @@ function Check(props: any): any {
   })
 }
 
+/** EN | PT segmented toggle (fork). `lang` = copy language; `uiLang` = current preference. */
+function LanguageToggle(props: { lang: Lang; uiLang: Lang }): any {
+  const react = getReact()
+  if (!react) return null
+  const h = react.createElement
+  const cur = props.uiLang === 'pt' ? 'pt' : 'en'
+  const pill = (code: Lang, label: string) => {
+    const on = cur === code
+    return h('button', {
+      key: code,
+      type: 'button',
+      'data-dsh-prompt-lang': code,
+      'data-dsh-prompt-lang-active': on ? 'true' : 'false',
+      'aria-pressed': on ? 'true' : 'false',
+      title: label,
+      'aria-label': label,
+      style: {
+        fontFamily: TOK.font, fontSize: '0.86em', padding: '5px 10px', borderRadius: 8, cursor: 'pointer',
+        border: '1px solid ' + (on ? TOK.accent : TOK.border),
+        background: on ? TOK.bgHover : 'transparent',
+        color: on ? TOK.labelPrimary : TOK.labelSecondary,
+      },
+      onClick: () => {
+        try { saveUiLang(code) } catch (e) { /* ignore */ }
+      },
+    }, label)
+  }
+  return h('span', {
+    role: 'group',
+    'aria-label': tr(props.lang, STR.langRowLabel),
+    style: { display: 'inline-flex', alignItems: 'center', gap: 6 },
+  }, [
+    pill('en', tr(props.lang, STR.langEn)),
+    pill('pt', tr(props.lang, STR.langPt)),
+  ])
+}
+
 /** 下载文本为文件。返回是否成功（失败时调用方改走复制路径）。 */
 function downloadText(text: string, fileName: string): boolean {
   try {
@@ -239,6 +276,9 @@ export function SettingsPage(props: any): any {
   // #179 触发方式（与底栏「点击触发/悬浮触发」同一全局位；两处经订阅双向同步）。
   const triggerState = react.useState(loadHoverTrigger())
   const hoverTriggerOn = triggerState[0]
+  // Fork: UI language (en|pt); preference drives resolveLocale for every surface.
+  const uiLangState = react.useState(loadUiLang())
+  const uiLang = uiLangState[0] as Lang
 
   const reasonText = (code?: string): string => {
     const key = code === 'host-unavailable' || code === 'host-unreachable' ? 'logReasonHost'
@@ -251,10 +291,11 @@ export function SettingsPage(props: any): any {
 
   // 语言跟随：共享单例订阅器（#137；观察者与去重都在 locale.ts 一处，本面只重渲染）
   react.useEffect(() => subscribeLocale((l) => { langState[1](l) }), [])
-  // #165/#179：屏蔽位与触发方式经 store 订阅刷新（含面板底栏/大列表翻转后的回写）。
+  // #165/#179 + lang：屏蔽位、触发方式、语言经 store 订阅刷新。
   react.useEffect(() => subscribeStore(() => {
     try { hideState[1](loadHidePreset()) } catch (e) { /* ignore */ }
     try { triggerState[1](loadHoverTrigger()) } catch (e) { /* ignore */ }
+    try { uiLangState[1](loadUiLang()) } catch (e) { /* ignore */ }
   }), [])
   // 开关状态变化（启动对账、写入成功、跨标签页广播）时刷新界面。
   react.useEffect(() => {
@@ -732,6 +773,13 @@ export function SettingsPage(props: any): any {
         label: t('triggerRowLabel'),
         description: t('triggerHint'),
         control: h(TriggerModeButton, { hover: hoverTriggerOn, lang }),
+      }),
+      h(SettingRow, {
+        key: 'ui-lang',
+        'data-dsh-prompt-setting': 'uiLang',
+        label: t('langRowLabel'),
+        description: t('langHint'),
+        control: h(LanguageToggle, { lang: uiLang, uiLang }),
       }),
       hairline('sep-hide-browser'),
       h(TemplateBrowser, { key: 'browser', compact: false, collapsible: true }),

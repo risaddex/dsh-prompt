@@ -27,7 +27,7 @@ const panel = require(path.join(DIR, 'template-browser.cjs'));
 const { TemplateBrowser, PANEL_Z, MODAL_Z, PanelPortal } = panel;
 const { tr, STR } = require(path.join(DIR, 'strings.cjs'));
 const state = require(path.join(DIR, 'panel-visibility.cjs'));
-const zh = (k) => tr('zh', STR[k]);
+const zh = (k) => tr('en', STR[k]);
 
 function assert(cond, msg) {
   if (!cond) { console.log('FAIL: ' + msg); process.exit(1); }
