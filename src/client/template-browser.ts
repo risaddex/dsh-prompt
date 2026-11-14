@@ -1862,7 +1862,9 @@ export function TemplateBrowser(props: BrowserProps): any {
   const handleCopy = (e: any, id: string) => {
     e.stopPropagation()
     // #142 边缘裁决 a：新建那一刻按当前订阅 lang 取一次后缀（已存 name 永不改写）
-    const c = copyPresetToCustom(id, tr(lang, STR.copySuffix))
+    // fork：正文同理——按当前语言落盘 bodyEn/bodyPt，自定义不再回落到中文原文
+    const src = getPresetById(id)
+    const c = copyPresetToCustom(id, tr(lang, STR.copySuffix), src ? resolveTemplateBody(src, lang) : undefined)
     if (!c) return
     // 创建反馈：自动置顶（容量允许）→ 切选中态为「自定义」（单选互斥下天然清行动，无需双维分清；
     // 旧 tab=自定义短路天然可见，新单选表达切到自定义即保可见）→ 高亮新项 → 滚入视野

@@ -668,12 +668,14 @@ export function removeCustom(id: string): boolean {
  *  是用户数据的一部分；要本地化只能「新建那一刻按当前语言取一次」，已存数据永不改写。
  *  #142 边缘裁决 a：grep 确认无把后缀 parse 回的代码（仅本行拼进去），故加可选 suffix 参数 ——
  *  调用方（panel handleCopy）传 tr(lang, STR.copySuffix)，缺省仍是 '（副本）'（既有调用与回归不动）；
- *  已存 name 永不改写（切语言不回写）。store 不 import i18n/locale，后缀由调用方按订阅 lang 取。 */
-export function copyPresetToCustom(id: string, suffix?: string): CustomTemplate | null {
+ *  已存 name 永不改写（切语言不回写）。store 不 import i18n/locale，后缀由调用方按订阅 lang 取。
+ *  fork：可选 body 同理——调用方传 resolveTemplateBody(src, lang)，缺省仍是中文 src.body。 */
+export function copyPresetToCustom(id: string, suffix?: string, body?: string): CustomTemplate | null {
   const src = getPresetById(id)
   if (!src) return null
   const tail = typeof suffix === 'string' ? suffix : '（副本）'
-  return addCustom(src.name + tail, templateLabels(src), src.body)
+  const text = typeof body === 'string' ? body : src.body
+  return addCustom(src.name + tail, templateLabels(src), text)
 }
 
 export { MAX_BODY }

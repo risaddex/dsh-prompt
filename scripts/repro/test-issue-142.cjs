@@ -254,15 +254,24 @@ function findFallbackHooks(inst) {
     eq(JSON.stringify(parseBack), '[]', 'store 无把（副本）parse 回的代码（新建即落盘原文）');
     installDom('en-US');
     const enSuffix = i18n.tr('en', STR.copySuffix);
-    const cEn = store.copyPresetToCustom('fp', enSuffix);
+    const fp = store.getTemplate('fp');
+    const enBody = keys.resolveTemplateBody(fp, 'en');
+    const cEn = store.copyPresetToCustom('fp', enSuffix, enBody);
     eq(cEn && cEn.name.endsWith(enSuffix), true, 'en 新建副本后缀按当前语言（实得 ' + (cEn && cEn.name) + '）');
+    eq(cEn && cEn.body === enBody && !/[\u4e00-\u9fff]/.test(cEn.body), true, 'en 新建副本正文按当前语言（非中文）');
     installDom('pt-BR');
     const ptSuffix = i18n.tr('pt', STR.copySuffix);
-    const cPt = store.copyPresetToCustom('fp', ptSuffix);
+    const ptBody = keys.resolveTemplateBody(fp, 'pt');
+    const cPt = store.copyPresetToCustom('fp', ptSuffix, ptBody);
     eq(cPt && cPt.name.endsWith(ptSuffix), true, 'pt 新建副本后缀按当前语言');
+    eq(cPt && cPt.body === ptBody && !/[\u4e00-\u9fff]/.test(cPt.body), true, 'pt 新建副本正文按当前语言（非中文）');
     // 已存永不改写：切语言后旧名不动
     installDom('en-US');
     eq(store.getTemplate(cPt.id).name.endsWith(ptSuffix), true, '已存 pt 副本切 en 后仍是原后缀（永不改写）');
+    eq(store.getTemplate(cPt.id).body === ptBody, true, '已存 pt 副本正文切 en 后仍是原葡文（永不改写）');
+    // panel 接线：handleCopy 传 resolveTemplateBody
+    const panelSrc = fs.readFileSync(SRC('template-browser.ts'), 'utf8');
+    eq(/copyPresetToCustom\(id,\s*tr\(lang,\s*STR\.copySuffix\),\s*(?:src\s*\?\s*)?resolveTemplateBody\(/.test(panelSrc), true, 'handleCopy 传 resolveTemplateBody 作为 body');
     try { store.removeCustom(cEn.id); } catch (e) {}
     try { store.removeCustom(cPt.id); } catch (e) {}
   }
